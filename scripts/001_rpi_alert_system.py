@@ -19,7 +19,7 @@ logging.getLogger('ultralytics').setLevel(logging.WARNING)
 
 # Load configuration from YAML file
 def load_config():
-    with open('config.yaml', 'r') as file:
+    with open('../config.yaml', 'r') as file:
         return yaml.safe_load(file)
 
 config = load_config()
@@ -30,8 +30,8 @@ EMAIL_PASS = config['imap_config']['password']
 TELEGRAM_BOT_TOKEN = config['telegram_config']['bot_token']
 TELEGRAM_CHAT_ID = config['telegram_config']['chat_id']
 
-MODEL_PATH_DETECTOR = '../deepfaune-yolov8s_960.pt'
-MODEL_PATH_CLASSIFIER = '../deepfaune-vit_large_patch14_dinov2.lvd142m.pt'
+MODEL_PATH_DETECTOR = '../models/deepfaune-yolov8s_960.pt'
+MODEL_PATH_CLASSIFIER = '../models/deepfaune-vit_large_patch14_dinov2.lvd142m.pt'
 
 ANIMAL_CLASSES = ["badger", "ibex", "red deer", "chamois", "cat", "goat", "roe deer", "dog", "squirrel", "equid", "genet",
                   "hedgehog", "lagomorph", "wolf", "lynx", "marmot", "micromammal", "mouflon",
@@ -40,7 +40,7 @@ ANIMAL_CLASSES = ["badger", "ibex", "red deer", "chamois", "cat", "goat", "roe d
 
 class Detector:
     def __init__(self):
-        self.model = YOLO('../deepfaune-yolov8s_960.pt')
+        self.model = YOLO(MODEL_PATH_DETECTOR)
 
     def bestBoxDetection(self, imagecv):
         image_rgb = cv2.cvtColor(imagecv, cv2.COLOR_BGR2RGB)
@@ -62,7 +62,7 @@ class Classifier:
     def __init__(self):
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.model = timm.create_model('vit_large_patch14_dinov2', pretrained=False, num_classes=len(ANIMAL_CLASSES), dynamic_img_size=True)
-        state_dict = torch.load('../deepfaune-vit_large_patch14_dinov2.lvd142m.pt', map_location=torch.device(device))['state_dict']
+        state_dict = torch.load(MODEL_PATH_CLASSIFIER, map_location=torch.device(device))['state_dict']
         self.model.load_state_dict({k.replace('base_model.', ''): v for k, v in state_dict.items()})
         self.transforms = transforms.Compose([
             transforms.Resize((182, 182), interpolation=InterpolationMode.BICUBIC),
@@ -160,7 +160,7 @@ if __name__ == "__main__":
     print(f"Monitoring {EMAIL_USER} for new messages...")
     while True:
         try:
-            time.sleep(10)
+            time.sleep(1)
             check_emails()
         except KeyboardInterrupt:
             print("Interrupted by user")

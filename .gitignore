@@ -3,4 +3,4 @@ archive/
 deepfaune/
 deepfaune-vit_large_patch14_dinov2.lvd142m.pt
 deepfaune-yolov8s_960.pt
-notebooks/config.yaml
+config.yaml
