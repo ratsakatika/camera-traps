@@ -1,7 +1,5 @@
 data/
 archive/
 deepfaune/
-deepfaune-vit_large_patch14_dinov2.lvd142m.pt
-deepfaune-yolov8s_960.pt
 config.yaml
-models/fine-tuned-deepfaune-vit_large_patch14_dinov2.lvd142m.pt
+models/
