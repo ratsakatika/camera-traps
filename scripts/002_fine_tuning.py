@@ -340,5 +340,8 @@ def main():
     test_accuracy = test(model, test_loader, device)
     print(f'Test Accuracy: {test_accuracy}%')
 
+    # Return critical variables for further experimentation
+    return model, train_loader, val_loader, test_loader, criterion, optimizer, total_epochs
+
 if __name__ == '__main__':
-    main()
+    model, train_loader, val_loader, test_loader, criterion, optimizer, total_epochs = main()
