@@ -1,5 +1,5 @@
 #################################################
-###### DETECTION AND CLASSIFICATION MODELS ######
+############ IMAGE PROCESSING TOOLS #############
 #################################################
 
 import torch
@@ -7,11 +7,67 @@ import timm
 from datetime import datetime
 from torchvision import transforms
 from torchvision.transforms import InterpolationMode
+from megadetector.visualization import visualization_utils as vis_utils
+import io
+from PIL import Image
+import ast
+from IPython.display import display
+from megadetector.visualization import visualization_utils as vis_utils
+import io
+from PIL import Image
+
+def set_device():
+    return 'cuda' if torch.cuda.is_available() else 'cpu'
+
+
+def image_to_bytes(image):
+    """Convert an image to bytes."""
+    byte_arr = io.BytesIO()
+    image.save(byte_arr, format='JPEG')
+    byte_arr.seek(0)
+    return byte_arr
+
+
+def detector(df, model, images, DETECTION_THRESHOLD):
+    """Run the MegaDetector on images and return detections above the threshold."""
+    
+    num_images = len(images)
+    
+    # Ensure there are enough rows in the DataFrame to update
+    if len(df) < num_images:
+        raise ValueError("The DataFrame does not have enough rows to update.")
+
+    for i, image in enumerate(images):
+        processed_image = vis_utils.load_image(image_to_bytes(image))
+        result = model.generate_detections_one_image(processed_image)
+        detections_above_threshold = [d for d in result['detections'] if d['conf'] > DETECTION_THRESHOLD]
+
+        detection_boxes = ", ".join(str(d['bbox']) for d in detections_above_threshold)
+        detection_classes = ", ".join(str(d['category']) for d in detections_above_threshold)
+        detection_confidences = ", ".join(str(d['conf']) for d in detections_above_threshold)
+
+        animal_count = sum(1 for d in detections_above_threshold if d['category'] == '1')
+        human_count = sum(1 for d in detections_above_threshold if d['category'] == '2')
+        vehicle_count = sum(1 for d in detections_above_threshold if d['category'] == '3')
+
+        print(f"Image {i+1}: Animal Count = {animal_count}, Human Count = {human_count}, Vehicle Count = {vehicle_count}")
+
+
+        # Update the respective row in the DataFrame
+        df.at[df.index[-num_images + i], 'Detection Boxes'] = detection_boxes
+        df.at[df.index[-num_images + i], 'Detection Classes'] = detection_classes
+        df.at[df.index[-num_images + i], 'Detection Confidences'] = detection_confidences
+        df.at[df.index[-num_images + i], 'Animal Count'] = animal_count
+        df.at[df.index[-num_images + i], 'Human Count'] = human_count
+        df.at[df.index[-num_images + i], 'Vehicle Count'] = vehicle_count
+
+    return df
+
 
 class classifier:
     """Image classifier for animal species."""
     def __init__(self, model_path_classifier, backbone, animal_classes, device='cpu'):
-        self.model = timm.create_model(backbone, pretrained=False, num_classes=len(animal_classes))
+        self.model = timm.create_model(backbone, pretrained=False, num_classes=len(animal_classes), dynamic_img_size=True)
         state_dict = torch.load(model_path_classifier, map_location=torch.device(device))['state_dict']
         self.model.load_state_dict({k.replace('base_model.', ''): v for k, v in state_dict.items()})
         self.transforms = transforms.Compose([
@@ -31,13 +87,60 @@ class classifier:
             top_p, top_class = probabilities.topk(1, dim=1)
             return self.animal_classes[top_class.item()], top_p.item()
 
-def set_device():
-    return 'cuda' if torch.cuda.is_available() else 'cpu'
+
+def batch_classification(df, images, classifier_model):
+    num_images = len(images)
+
+    for i, image in enumerate(images):  # Use the already opened images
+
+        species_list = []
+        species_species_conf_list = []
+
+        detection_boxes = ast.literal_eval(df['Detection Boxes'][i])  # Convert the string to list
+        detection_boxes = [detection_boxes] if isinstance(detection_boxes[0], float) else detection_boxes  # Ensure it's a list of lists
+
+        detection_classes = df['Detection Classes'][i].split(', ')  # Split the string into a list
+        detection_conf = df['Detection Confidences'][i].split(', ')  # Split the string into a list
+
+        for j, bbox in enumerate(detection_boxes):
+
+            if detection_classes[j] == '1':  # Only classify if an animal
+
+
+                left, top, width, height = bbox  # Unpack the bounding box
+
+                # Calculate the cropping coordinates
+                left_resized = int(left * image.width)
+                top_resized = int(top * image.height)
+                right_resized = int((left + width) * image.width)
+                bottom_resized = int((top + height) * image.height)
+
+                # Ensure the coordinates are within the image boundaries
+                left_resized = max(0, min(left_resized, image.width))
+                top_resized = max(0, min(top_resized, image.height))
+                right_resized = max(0, min(right_resized, image.width))
+                bottom_resized = max(0, min(bottom_resized, image.height))
+
+                cropped_image = image.crop((left_resized, top_resized, right_resized, bottom_resized))
+
+                species, species_conf = classifier_model.predict(cropped_image)
+                species_list.append(species)
+                species_species_conf_list.append(species_conf)
+
+                print(f"Image {i+1}, Detection {j+1} ({detection_conf[j]} confidence), Species: {species} ({species_conf * 100:.2f}% confidence)")
+                display(cropped_image)
+
+
+        df.at[df.index[-num_images + i], 'Species Classes'] = ", ".join(species_list)
+        df.at[df.index[-num_images + i], 'Species Confidences'] = ", ".join(map(str, species_species_conf_list))
+
+    return df
 
 
 #################################################
 ######## CHECK EMAILS AND EXTRACT DATA ##########
 #################################################
+
 
 import imaplib
 import email
@@ -87,6 +190,7 @@ def check_emails(IMAP_HOST, EMAIL_USER, EMAIL_PASS):
 
     return images, camera_id, temp_deg_c, img_date, img_time, battery, sd_memory
 
+
 def get_email_body(msg):
     """Extract the body from an email message."""
     body = ""
@@ -128,6 +232,7 @@ def extract_images_from_email(msg):
                         image_list.append(image)
     return image_list
 
+
 def download_image_from_url(url):
     """Download an image from a URL."""
     try:
@@ -137,6 +242,7 @@ def download_image_from_url(url):
     except requests.RequestException as e:
         print(f"Error downloading image from {url}: {str(e)}")
         return None
+
 
 def extract_camera_id(subject, body):
     # Extract camera ID from subject
@@ -151,6 +257,7 @@ def extract_camera_id(subject, body):
     
     return camera_id
 
+
 def extract_date_time_from_image(image):
     try:
         exif_data = image._getexif()
@@ -164,6 +271,7 @@ def extract_date_time_from_image(image):
     except Exception as e:
         print(f"Error extracting date and time from image: {e}")
     return None, None
+
 
 def extract_date(body):
     date_patterns = [
@@ -185,6 +293,7 @@ def extract_date(body):
                 continue
     return None
 
+
 def extract_time(body):
     time_patterns = [
         r"Time:(\d{2}:\d{2}:\d{2})",        # Pattern for "Time:17:08:02"
@@ -196,6 +305,7 @@ def extract_time(body):
         if match:
             return match.group(1)
     return None
+
 
 def extract_temperature(body):
     temp_patterns = [
@@ -210,6 +320,7 @@ def extract_temperature(body):
             return int(match.group(1))
     return None
 
+
 def extract_sd_free_space(body):
     sd_patterns = [
         r"SD card free space:\s*([\d\.]+)GB of ([\d\.]+)GB",  # Pattern for "SD card free space: 14.7GB of 14.8GB"
@@ -223,6 +334,7 @@ def extract_sd_free_space(body):
             total_space = float(match.group(2))
             return int((free_space / total_space) * 100)
     return None
+
 
 def extract_battery(body):
     battery_patterns = [
@@ -240,17 +352,19 @@ def extract_battery(body):
 ######## EXTRACT CAMERA LOCATIONS AND UPDATE BATTERY/STORAGE STATUS ##########
 ##############################################################################
 
+
 import pandas as pd
 
-def extract_update_camera_status(camera_id, battery=None, sd_memory=None):
+def extract_and_update_camera_info(CAMERA_LOCATIONS_PATH, camera_id, battery=None, sd_memory=None):
     # Read the CSV file
-    df = pd.read_csv('../data/camera_locations.csv')
+    df = pd.read_csv(CAMERA_LOCATIONS_PATH)
 
     # Find the row with the matching Camera ID
     camera_row = df[df['Camera ID'] == camera_id]
 
     if camera_row.empty:
-        raise ValueError(f"No camera found with ID {camera_id}")
+        print(f"No camera found with ID {camera_id}")
+        return None, None, None, None, None, None
 
     # Extract the details
     camera_make = camera_row['Make'].values[0]
@@ -273,3 +387,50 @@ def extract_update_camera_status(camera_id, battery=None, sd_memory=None):
     df.to_csv('../data/camera_locations.csv', index=False)
 
     return camera_make, gps, location, map_url, battery, sd_memory
+
+
+def update_camera_data_dataframe(df, images_count, camera_id, camera_make, img_date, img_time, temp_deg_c, battery, sd_memory, location, gps, map_url):
+    # Determine the new Sequence ID by adding 1 to the last existing Sequence ID
+    last_sequence_id = df['Sequence ID'].max() if not df.empty else 100000
+    new_sequence_id = last_sequence_id + 1
+
+    # Creating a list for the sequence column
+    sequence = [new_sequence_id] * images_count
+    sequence_numbers = list(range(1, images_count + 1))
+    
+    # Creating the 'File ID' column
+    file_ids = [f"{new_sequence_id}_{num}" for num in sequence_numbers]
+
+    # Creating a DataFrame with repeated values for each row
+    new_data = pd.DataFrame({
+        'File ID': file_ids,
+        'Sequence ID': sequence,
+        'Sequence': sequence_numbers,
+        'Date': [img_date] * images_count,
+        'Time': [img_time] * images_count,
+        'Camera ID': [camera_id] * images_count,
+        'Camera Make': [camera_make] * images_count,
+        'Location': [location] * images_count,
+        'GPS': [gps] * images_count,
+        'Temperature': [temp_deg_c] * images_count,
+        'Battery': [battery] * images_count,
+        'SD Memory': [sd_memory] * images_count,
+        'Map URL': [map_url] * images_count
+    })
+    
+    # Converting 'Sequence' column to integer
+    new_data['Sequence'] = new_data['Sequence'].astype(int)
+
+    # Printing the summary information
+    print(
+        f"\nEmail Received."
+        f"\nImages: {images_count}, Camera ID: {camera_id}, Camera Make: {camera_make}"
+        f"\nDate: {img_date}, Time: {img_time}, Temperature: {temp_deg_c}"
+        f"\nBattery: {battery}%, SD Memory: {sd_memory}%"
+        f"\nLocation: {location}, GPS: {gps}, Map URL: {map_url}"
+    )
+
+    # Append the new data to the existing DataFrame
+    df = pd.concat([df, new_data], ignore_index=True)
+    
+    return df
