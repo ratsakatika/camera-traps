@@ -633,14 +633,14 @@ def generate_alert_caption(df, num_images, SPECIES_OF_INTEREST, EMAIL_USER, ALER
     alert_caption += f"\nWild Boars: {int(max(wild_boar_count))} (Confidence: {wild_boar_confidence_str})"
     alert_caption += f"\nBears: {int(max(bear_count))} (Confidence: {bear_confidence_str})"
     alert_caption += f"\nOthers: {non_interest_species_str} (Confidence: {other_confidence_str})"
-    alert_caption += f"\nImage Sequence ID: {sequence_id}"
+    alert_caption += f"\nImage Sequence ID: {int(sequence_id)}"
 
     alert_caption += f"\n\n**Camera Details**"
     alert_caption += f"\nCamera ID: {camera_id}"
     alert_caption += f"\nCamera Brand: {camera_make}"
     alert_caption += f"\nBattery Remaining: {battery}%"
     alert_caption += f"\nStorage Remaining: {sd_memory}%"
-    alert_caption += f"\nCurrent Temperature: {temperature}"
+    alert_caption += f"\nCurrent Temperature: {temperature}℃"
     alert_caption += f"\nDate: {img_date}"
 
     flattened_alert_caption = alert_caption.replace('\n', '. ')
