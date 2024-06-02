@@ -186,6 +186,7 @@ from PIL.ExifTags import TAGS
 def check_emails(IMAP_HOST, EMAIL_USER, EMAIL_PASS):
     """Check emails for new messages with images and extract metadata."""
     images = []
+    original_images = []
     camera_id = None
     temp_deg_c = None
     img_date = None
@@ -204,7 +205,7 @@ def check_emails(IMAP_HOST, EMAIL_USER, EMAIL_PASS):
         typ, data = mail.fetch(oldest_unread, '(RFC822)')
         msg = email.message_from_bytes(data[0][1])
 
-        images = extract_images_from_email(msg)
+        images, original_images = extract_images_from_email(msg)
         subject = msg['subject']
         body = get_email_body(msg)
         camera_id = extract_camera_id(subject, body)
@@ -220,7 +221,7 @@ def check_emails(IMAP_HOST, EMAIL_USER, EMAIL_PASS):
         
     mail.logout()
 
-    return images, camera_id, temp_deg_c, img_date, img_time, battery, sd_memory
+    return images, original_images, camera_id, temp_deg_c, img_date, img_time, battery, sd_memory
 
 
 def get_email_body(msg):
@@ -246,6 +247,7 @@ def get_email_body(msg):
 def extract_images_from_email(msg):
     """Extract images from an email message."""
     image_list = []
+    original_image_list = []
     if msg.is_multipart():
         for part in msg.walk():
             content_type = part.get_content_type()
@@ -255,6 +257,7 @@ def extract_images_from_email(msg):
                 image_data = part.get_payload(decode=True)
                 image = Image.open(io.BytesIO(image_data))
                 image_list.append(image)
+                original_image_list.append(Image.open(io.BytesIO(image_data)))
             elif content_type == 'text/html':
                 html_body = part.get_payload(decode=True).decode()
                 image_urls = re.findall(r'<img src="(https?://[^"]+)"', html_body)
@@ -262,7 +265,7 @@ def extract_images_from_email(msg):
                     image = download_image_from_url(url)
                     if image:
                         image_list.append(image)
-    return image_list
+    return image_list, original_image_list
 
 
 def download_image_from_url(url):
@@ -467,7 +470,7 @@ def update_camera_data_dataframe(df, images_count, camera_id, camera_make, img_d
 
     # Printing the summary information
     print(
-        f"\n{current_time()} | Email Received."
+        f"\n{current_time()} | Email Received"
         f"\n{current_time()} | Images: {images_count}, Camera ID: {camera_id}, Camera Make: {camera_make}"
         f"\n{current_time()} | Date: {img_date}, Time: {img_time}, Temperature: {temp_deg_c}"
         f"\n{current_time()} | Battery: {battery}%, SD Memory: {sd_memory}%"
@@ -490,6 +493,7 @@ def current_time():
 
 
 from collections import Counter
+import pandas as pd
 
 def generate_alert_caption(df, num_images, SPECIES_OF_INTEREST, EMAIL_USER, ALERT_LANGUAGE="en"):
     
@@ -506,8 +510,6 @@ def generate_alert_caption(df, num_images, SPECIES_OF_INTEREST, EMAIL_USER, ALER
     gps = master_row['GPS']
     map_url = master_row['Map URL']
     temperature = master_row['Temperature']
-    if temperature == "Unknown":
-        temperature = "See photo(s)"
     battery = master_row['Battery']
     sd_memory = master_row['SD Memory']
 
@@ -574,74 +576,80 @@ def generate_alert_caption(df, num_images, SPECIES_OF_INTEREST, EMAIL_USER, ALER
         min_wild_boar_conf = round(min(wild_boar_confidences) * 100)
         max_wild_boar_conf = round(max(wild_boar_confidences) * 100)
         if min_wild_boar_conf == max_wild_boar_conf:
-            wild_boar_confidence_str = f"{min_wild_boar_conf}%"
+            wild_boar_confidence_str = f" ({min_wild_boar_conf}%)"
         else:
-            wild_boar_confidence_str = f"{min_wild_boar_conf}-{max_wild_boar_conf}%"
+            wild_boar_confidence_str = f" ({min_wild_boar_conf}-{max_wild_boar_conf}%)"
     else:
-        wild_boar_confidence_str = "N/A"
+        wild_boar_confidence_str = ""
 
     if bear_confidences:
         min_bear_conf = round(min(bear_confidences) * 100)
         max_bear_conf = round(max(bear_confidences) * 100)
         if min_bear_conf == max_bear_conf:
-            bear_confidence_str = f"{min_bear_conf}%"
+            bear_confidence_str = f" ({min_bear_conf}%)"
         else:
-            bear_confidence_str = f"{min_bear_conf}-{max_bear_conf}%"
+            bear_confidence_str = f" ({min_bear_conf}-{max_bear_conf}%)"
     else:
-        bear_confidence_str = "N/A"
+        bear_confidence_str = ""
 
     if other_confidences:
         min_other_conf = round(min(other_confidences) * 100)
         max_other_conf = round(max(other_confidences) * 100)
         if min_other_conf == max_other_conf:
-            other_confidence_str = f"{min_other_conf}%"
+            other_confidence_str = f" ({min_other_conf}%)"
         else:
-            other_confidence_str = f"{min_other_conf}-{max_other_conf}%"
+            other_confidence_str = f" ({min_other_conf}-{max_other_conf}%)"
     else:
-        other_confidence_str = "N/A"
+        other_confidence_str = ""
 
-
-
+    other_count = int(max(animal_count)) - int(max(wild_boar_count)) - int(max(bear_count))
 
 
     if priority_alert:
-        alert_caption = f":rotating_light: **{int(priority_alert_count)} {priority_alert.upper()} DETECTED** :rotating_light:"
-        print(f"{current_time()} | *** PRIORITY ALERT: AT LEAST {int(priority_alert_count)} {priority_alert.upper()} DETECTED IN IMAGE SEQUENCE***")
+        if priority_alert_count == 1:
+            alert_caption = f"🚨<b> {int(priority_alert_count)} {priority_alert.upper()} DETECTED </b>🚨"
+        else:
+            alert_caption = f"🚨<b> {int(priority_alert_count)} {priority_alert.upper()}S DETECTED </b>🚨"
+        print(f"{current_time()} | PRIORITY ALERT: AT LEAST {int(priority_alert_count)} {priority_alert.upper()} DETECTED IN IMAGE SEQUENCE")
 
         if human_warning:
-            alert_caption += f"WARNING: **{int(max(human_count))} HUMAN(S) ALSO DETECTED**"
-            print(f"{current_time()} | *** WARNING: {int(max(human_count))} HUMAN/VEHICLE(S) DETECTED IN IMAGE SEQUENCE ***")
+            alert_caption += f"\nWARNING: **{int(max(max(human_count), max(vehicle_count)))} HUMAN(S) ALSO DETECTED**"
+            print(f"{current_time()} | WARNING: {int(max(max(human_count), max(vehicle_count)))} HUMAN/VEHICLE(S) DETECTED IN IMAGE SEQUENCE")
     elif human_warning:
-        alert_caption = f":person_walking_facing_right: **{int(max(human_count))} HUMAN(S) DETECTED** :horse_racing:"
-        print(f"{current_time()} | *** WARNING: {int(max(human_count))} HUMAN/VEHICLE(S) DETECTED IN IMAGE SEQUENCE ***")
+        # Plural handling not added to emphasise human presence in case of human under-detection
+        alert_caption = f"🚶‍➡️<b> {int(max(human_count))} HUMAN(S) DETECTED </b>🚶"
+        print(f"{current_time()} | WARNING: {int(max(human_count))} HUMAN/VEHICLE(S) DETECTED IN IMAGE SEQUENCE")
     else:
-        alert_caption = f":fox: **{int(max(animal_count))} {sequence_primary_species} Detected** :badger:"
+        if max(animal_count) == 1:
+            alert_caption = f"🦊<b> {int(max(animal_count))} {sequence_primary_species} Detected </b> 🦡"
+        else:
+            alert_caption = f"🦊 <b> {int(max(animal_count))} {sequence_primary_species}s Detected </b> 🦡"
         print(f"{current_time()} | {int(max(animal_count))} Non-Priority Animal(s) Detected")
 
-    alert_caption += f"\n\nTime: {img_time}"
-    alert_caption += f"\nLocation: {location}"
-    alert_caption += f"\nGPS: {gps}"
-    alert_caption += f"\nMap Link: {map_url}"
+    alert_caption += f"\n\n🕔 Time: {img_time}"
+    alert_caption += f"\n🌍 Location: {location}"
+    alert_caption += f"\n📍 <a href='{map_url}'>Map Link</a>"
 
     if human_warning:
-        alert_caption += f"\n\n__Photos of humans are not sent between 06:00 and 21:00 to protect privacy. All photos are stored on {EMAIL_USER} for 48 hours before deletion.__"
+        alert_caption += f"\n\n<i>Do not share photos of humans outside of FCC. No photos of humans are sent between 06:00 and 21:00 to protect privacy. Authorised users can check {EMAIL_USER} to view the photos.</i>"
 
-    alert_caption += f"\n\n**Detection Details**"
-    alert_caption += f"\nAnimals: {int(max(animal_count))}"
-    alert_caption += f"\nHumans: {int(max(human_count))}"
-    alert_caption += f"\nVehicles: {int(max(vehicle_count))}"
-    alert_caption += f"\nWild Boars: {int(max(wild_boar_count))} (Confidence: {wild_boar_confidence_str})"
-    alert_caption += f"\nBears: {int(max(bear_count))} (Confidence: {bear_confidence_str})"
-    alert_caption += f"\nOthers: {non_interest_species_str} (Confidence: {other_confidence_str})"
-    alert_caption += f"\nImage Sequence ID: {int(sequence_id)}"
+    alert_caption += f"\n--------------------"
+    alert_caption += f"\n🧍 Humans: {int(max(human_count))}"
+    alert_caption += f"\n🚜 Vehicles: {int(max(vehicle_count))}"
+    alert_caption += f"\n🐗 Wild Boars: {int(max(wild_boar_count))}{wild_boar_confidence_str}"
+    alert_caption += f"\n🐻 Bears: {int(max(bear_count))}{bear_confidence_str}"
+    alert_caption += f"\n🦊🦌🦡🦉Others: {other_count}{other_confidence_str}"
+    alert_caption += f"\n📷 ID: {int(sequence_id)}, {img_date}"
 
-    alert_caption += f"\n\n**Camera Details**"
+    alert_caption += f"\n--------------------"
     alert_caption += f"\nCamera ID: {camera_id}"
-    alert_caption += f"\nCamera Brand: {camera_make}"
-    alert_caption += f"\nBattery Remaining: {battery}%"
-    alert_caption += f"\nStorage Remaining: {sd_memory}%"
-    alert_caption += f"\nCurrent Temperature: {temperature}℃"
-    alert_caption += f"\nDate: {img_date}"
+    alert_caption += f"; Brand: {camera_make}"
+    alert_caption += f"; Battery: {battery}%"
+    alert_caption += f"; Storage: {sd_memory}%"
+    if pd.notna(temperature):
+        alert_caption += f"; Temperature: {temperature}℃"
+    alert_caption += f"; GPS: {gps}"
+
 
     flattened_alert_caption = alert_caption.replace('\n', '. ')
     df.iloc[-num_images:, df.columns.get_loc('Alert Message')] = flattened_alert_caption
@@ -649,13 +657,182 @@ def generate_alert_caption(df, num_images, SPECIES_OF_INTEREST, EMAIL_USER, ALER
 
     return df, alert_caption, human_warning, priority_alert
 
+
+from PIL import Image, ImageDraw
+import io
+
+def annotate_images(df, images):
+    image_list = []
+    
+    # Extract the last len(images) rows
+    last_rows = df.iloc[-len(images):]
+
+    for image, row in zip(images, last_rows.iterrows()):
+        index, row_data = row
+        draw = ImageDraw.Draw(image)
+
+        detection_boxes = row_data['Detection Boxes']
+        detection_classes = row_data['Detection Classes']
+        detection_confidences = row_data['Detection Confidences']
+        species_classes = row_data['Species Classes']
+        species_confidences = row_data['Species Confidences']
+        
+        species_idx = 0  # to keep track of the current species index
+
+        for box, d_class, d_conf in zip(detection_boxes, detection_classes, detection_confidences):
+            # Convert relative coordinates to absolute coordinates
+            width, height = image.size
+            x1 = int(box[0] * width)
+            y1 = int(box[1] * height)
+            x2 = int((box[0] + box[2]) * width)
+            y2 = int((box[1] + box[3]) * height)
+            
+            # Set color and label based on detection class
+            if d_class == '1':  # Animal
+                color = 'red'
+                label = f"{species_classes[species_idx]} {species_confidences[species_idx] * 100:.0f}%"
+                species_idx += 1
+            elif d_class == '2':  # Human
+                color = 'green'
+                label = f"Human {d_conf * 100:.0f}%"
+            elif d_class == '3':  # Vehicle
+                color = 'blue'
+                label = f"Vehicle {d_conf * 100:.0f}%"
+            else:
+                color = 'yellow'
+                label = f"Unknown {d_conf * 100:.0f}%"
+                
+            # Draw bounding box
+            draw.rectangle([x1, y1, x2, y2], outline=color, width=3)
+            draw.text((x1, y1 - 10), label, fill=color)
+        
+        image_list.append(image)
+    
+    return image_list
+
+
+import requests
+import io
+import json
+import time
+from requests.exceptions import ConnectionError, HTTPError
+
+def send_alert_to_telegram(bot_token, chat_id, photos, caption):
+    if photos is None:
+        # URL for sending text message
+        url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+        data = {
+            'chat_id': chat_id,
+            'text': caption,
+            'parse_mode': 'HTML'  # Enable HTML parsing
+        }
+        files = {}
+    else:
+        # URL for sending media group
+        url = f"https://api.telegram.org/bot{bot_token}/sendMediaGroup"
+        media = []
+        files = {}
+
+        for idx, photo in enumerate(photos):
+            buf = io.BytesIO()
+            photo.save(buf, format='JPEG')
+            buf.seek(0)
+            file_name = f'photo{idx}.jpg'
+            files[file_name] = buf  # Store the BytesIO object
+
+            media.append({
+                'type': 'photo',
+                'media': f'attach://{file_name}',
+                'caption': caption if idx == 0 else "",
+                'parse_mode': 'HTML'  # Enable HTML parsing for each media item
+            })
+
+        # Prepare the data and files for the request
+        data = {
+            'chat_id': chat_id,
+            'media': json.dumps(media),
+            'parse_mode': 'HTML'  # Ensure HTML parsing is enabled globally
+        }
+        files = {name: (name, buf, 'image/jpeg') for name, buf in files.items()}
+
+    def send_request(retries=0, MAX_RETRIES=5):
+        if retries >= MAX_RETRIES:
+            raise Exception("Max retries reached")
+
+        try:
+            response = requests.post(url, data=data, files=files)
+            if response.status_code == 429:
+                # Handle rate limit
+                retry_after = int(response.headers.get("Retry-After", 1))
+                retry_after += 10
+                print(f"Rate limited. Retrying after {retry_after} seconds.")
+                time.sleep(retry_after)
+                return send_request(retries + 1)  # Retry after delay
+            if response.status_code != 200:
+                print("Error response:", response.json())  # Print the error response for debugging
+                print("Request data:", data)  # Print request data for debugging
+                if files:
+                    print("Request files:", files)  # Print request files for debugging
+                print("Caption sent:", caption)  # Print the caption sent for debugging
+            response.raise_for_status()
+            return response
+        except (ConnectionError, HTTPError) as e:
+            print(f"Connection error: {e}. Retrying in 10 seconds...")
+            time.sleep(10)  # Wait for 5 seconds before retrying
+            return send_request(retries + 1)
+
+    response = send_request()
+    print(f"{current_time()} | Alert sent.")
+
+
+
+
 ##################################################
 ############### HELPER FUNCTIONS #################
 ##################################################
 
 
-def check_counts_and_species(df, images):
+def valid_detections(df, images):
     last_rows = df.iloc[-len(images):]
     human_or_vehicle_present = (last_rows['Human Count'] > 0).any() or (last_rows['Vehicle Count'] > 0).any()
     primary_species_not_empty = (last_rows['Primary Species'] != "Empty").any()
     return human_or_vehicle_present or primary_species_not_empty
+
+
+from datetime import datetime
+import pytz
+
+def get_current_time_in_romania():
+    romania_tz = pytz.timezone('Europe/Bucharest')
+    return datetime.now(romania_tz).strftime("%H:%M")
+
+import os
+from PIL import Image
+
+
+def save_images(df, images, PHOTOS_PATH):
+    # Ensure the PHOTOS_PATH directory exists
+    os.makedirs(PHOTOS_PATH, exist_ok=True)
+
+    # Get the last len(images) rows of df
+    last_rows = df.tail(len(images))
+
+    # Iterate through the images and corresponding rows in the DataFrame
+    for index, (image, (_, row)) in enumerate(zip(images, last_rows.iterrows())):
+        primary_species = row['Primary Species']
+        file_id = row['File ID']
+
+        # Create directory for the primary species if it doesn't exist
+        species_dir = os.path.join(PHOTOS_PATH, primary_species)
+        os.makedirs(species_dir, exist_ok=True)
+
+        # Define the file path for the image
+        file_path = os.path.join(species_dir, f"{file_id}.jpg")
+
+        # Save the image
+        image.save(file_path, format='JPEG')
+
+        # Update the File Path column in the DataFrame
+        df.at[row.name, 'File Path'] = file_path
+
+    return df
