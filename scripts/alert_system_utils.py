@@ -17,7 +17,6 @@ from megadetector.visualization import visualization_utils as vis_utils
 def set_device():
     return 'cuda' if torch.cuda.is_available() else 'cpu'
 
-
 def image_to_bytes(image):
     """Convert an image to bytes."""
     byte_arr = io.BytesIO()
@@ -25,10 +24,10 @@ def image_to_bytes(image):
     byte_arr.seek(0)
     return byte_arr
 
-
 def detector(df, model, images, DETECTION_THRESHOLD):
     """Run the MegaDetector on images and return detections above the threshold."""
     
+    human_warning = False
     num_images = len(images)
     
     # Ensure there are enough rows in the DataFrame to update
@@ -50,7 +49,6 @@ def detector(df, model, images, DETECTION_THRESHOLD):
 
         print(f"{current_time()} | Image {i+1}: Animal Count = {animal_count}, Human Count = {human_count}, Vehicle Count = {vehicle_count}")
 
-
         # Update the respective row in the DataFrame
         df.at[df.index[-num_images + i], 'Detection Boxes'] = detection_boxes
         df.at[df.index[-num_images + i], 'Detection Classes'] = detection_classes
@@ -59,7 +57,11 @@ def detector(df, model, images, DETECTION_THRESHOLD):
         df.at[df.index[-num_images + i], 'Human Count'] = human_count
         df.at[df.index[-num_images + i], 'Vehicle Count'] = vehicle_count
 
-    return df
+        if human_count > 0 or vehicle_count > 0:
+            human_warning = True
+            
+
+    return df, human_warning
 
 
 class classifier:
@@ -85,80 +87,110 @@ class classifier:
             top_p, top_class = probabilities.topk(1, dim=1)
             return self.animal_classes[top_class.item()], top_p.item()
 
+from collections import Counter
 
 def batch_classification(df, classifier_model, images, CLASSIFICATION_THRESHOLD):
     num_images = len(images)
     df_length = len(df)
 
-    for i, image in enumerate(images):  # Use the already opened images
+    for i, image in enumerate(images):
 
         species_list = []
         species_confidence_list = []
-
         detection_boxes = df['Detection Boxes'][df_length-num_images + i]
 
-        if detection_boxes == "":
-            continue
+        if detection_boxes == []:
 
-        detection_classes = df['Detection Classes'][df_length-num_images + i]
-        detection_conf = df['Detection Confidences'][df_length-num_images + i]
-
-        for j, bbox in enumerate(detection_boxes):
-            
-            if detection_classes[j] == '1':  # Only classify if an animal
-
-                left, top, width, height = bbox  # Unpack the bounding box
-
-                # Calculate the cropping coordinates
-                left_resized = int(left * image.width)
-                top_resized = int(top * image.height)
-                right_resized = int((left + width) * image.width)
-                bottom_resized = int((top + height) * image.height)
-
-                # Ensure the coordinates are within the image boundaries
-                left_resized = max(0, min(left_resized, image.width))
-                top_resized = max(0, min(top_resized, image.height))
-                right_resized = max(0, min(right_resized, image.width))
-                bottom_resized = max(0, min(bottom_resized, image.height))
-
-                cropped_image = image.crop((left_resized, top_resized, right_resized, bottom_resized))
-
-                species, species_conf = classifier_model.predict(cropped_image)
-
-                if species_conf >= CLASSIFICATION_THRESHOLD:
-                    
-                    species_list.append(species)
-                    species_confidence_list.append(species_conf)
-
-                    print(f"{current_time()} | Image {i+1}, Detection {j+1} ({detection_conf[j] * 100:.2f}% confidence), Species: {species} ({species_conf * 100:.2f}% confidence)")
-                
-                else:
-                    
-                    print(f"{current_time()} | Image {i+1}, Detection {j+1} ({detection_conf[j] * 100:.2f}% confidence), Species: {species} ({species_conf * 100:.2f}% confidence). EXCLUDED: Below Species Confidence Threshold ({CLASSIFICATION_THRESHOLD * 100:.2f}%)")
-
-                
-                # display(cropped_image)
-
-        if species_list:
-
-            primary_species = max(set(species_list), key=species_list.count)
-            wild_boar_count = species_list.count('Wild Boar')
-            bear_count = species_list.count('Bear')
-
-        elif df['Human Count'][df_length-num_images + i] > 0:
-            primary_species = "Human"
-            wild_boar_count = 0
-            bear_count = 0
-
-        elif df['Vehicle Count'][df_length-num_images + i] > 0:
-            primary_species = "Vehicle"
-            wild_boar_count = 0
-            bear_count = 0
-
-        else:
             primary_species = "Empty"
             wild_boar_count = 0
             bear_count = 0
+            print(f"{current_time()} | Image {i+1}, No Detections")
+
+        else:
+
+            detection_classes = df['Detection Classes'][df_length-num_images + i]
+            detection_conf = df['Detection Confidences'][df_length-num_images + i]
+
+            for j, bbox in enumerate(detection_boxes):
+                
+                if detection_classes[j] == '1':  # Only classify if an animal
+
+                    left, top, width, height = bbox  # Unpack the bounding box
+
+                    # Calculate the cropping coordinates
+                    left_resized = int(left * image.width)
+                    top_resized = int(top * image.height)
+                    right_resized = int((left + width) * image.width)
+                    bottom_resized = int((top + height) * image.height)
+
+                    # Ensure the coordinates are within the image boundaries
+                    left_resized = max(0, min(left_resized, image.width))
+                    top_resized = max(0, min(top_resized, image.height))
+                    right_resized = max(0, min(right_resized, image.width))
+                    bottom_resized = max(0, min(bottom_resized, image.height))
+
+                    cropped_image = image.crop((left_resized, top_resized, right_resized, bottom_resized))
+
+                    species, species_conf = classifier_model.predict(cropped_image)
+
+                    if species_conf >= CLASSIFICATION_THRESHOLD:
+                        
+                        species_list.append(species)
+                        species_confidence_list.append(species_conf)
+
+                        print(f"{current_time()} | Image {i+1}, Detection {j+1} ({detection_conf[j] * 100:.2f}% confidence), Species: {species} ({species_conf * 100:.2f}% confidence)")
+                    
+                    else:
+
+                        species_list.append("Unknown")
+                        species_confidence_list.append(species_conf)
+                        print(f"{current_time()} | Image {i+1}, Detection {j+1} ({detection_conf[j] * 100:.2f}% confidence), Species: {species} ({species_conf * 100:.2f}% confidence). CLASSED AS 'UNKNOWN': Below Species Confidence Threshold ({CLASSIFICATION_THRESHOLD * 100:.2f}%)")
+
+                    
+                    # display(cropped_image)
+
+            if species_list:
+
+                # Count the occurrences of each species
+                species_counter = Counter(species_list)
+                most_common_count = max(species_counter.values())
+
+                # Identify species with the highest count
+                most_common_species = [species for species, count in species_counter.items() if count == most_common_count]
+
+                #If there's a tie, select the species with the highest confidence
+                if len(most_common_species) > 1:
+                    max_confidence = -1
+                    primary_species = None
+                    for species in most_common_species:
+                        indices = [i for i, x in enumerate(species_list) if x == species]
+                        max_species_confidence = max(species_confidence_list[i] for i in indices)
+                        if max_species_confidence > max_confidence:
+                            max_confidence = max_species_confidence
+                            primary_species = species
+                else:
+                    primary_species = most_common_species[0]
+
+                wild_boar_count = species_list.count('Wild Boar')
+                bear_count = species_list.count('Bear')
+
+            elif df['Human Count'][df_length-num_images + i] > 0:
+                print(f"{current_time()} | Image {i+1}, Human/Vehicle Only")
+                primary_species = "Human"
+                wild_boar_count = 0
+                bear_count = 0
+
+            elif df['Vehicle Count'][df_length-num_images + i] > 0:
+                print(f"{current_time()} | Image {i+1}, Human/Vehicle Only")
+                primary_species = "Vehicle"
+                wild_boar_count = 0
+                bear_count = 0
+            
+            else:
+                print(f"{current_time()} | Image {i+1}, Error")
+                primary_species = "Error"
+                wild_boar_count = 0
+                bear_count = 0
 
         df.at[df.index[-num_images + i], 'Species Classes'] = species_list
         df.at[df.index[-num_images + i], 'Species Confidences'] = species_confidence_list
@@ -205,7 +237,8 @@ def check_emails(IMAP_HOST, EMAIL_USER, EMAIL_PASS):
         typ, data = mail.fetch(oldest_unread, '(RFC822)')
         msg = email.message_from_bytes(data[0][1])
 
-        images, original_images = extract_images_from_email(msg)
+        images = extract_images_from_email(msg)
+        original_images = [img.copy() for img in images]
         subject = msg['subject']
         body = get_email_body(msg)
         camera_id = extract_camera_id(subject, body)
@@ -247,7 +280,6 @@ def get_email_body(msg):
 def extract_images_from_email(msg):
     """Extract images from an email message."""
     image_list = []
-    original_image_list = []
     if msg.is_multipart():
         for part in msg.walk():
             content_type = part.get_content_type()
@@ -257,7 +289,6 @@ def extract_images_from_email(msg):
                 image_data = part.get_payload(decode=True)
                 image = Image.open(io.BytesIO(image_data))
                 image_list.append(image)
-                original_image_list.append(Image.open(io.BytesIO(image_data)))
             elif content_type == 'text/html':
                 html_body = part.get_payload(decode=True).decode()
                 image_urls = re.findall(r'<img src="(https?://[^"]+)"', html_body)
@@ -265,7 +296,7 @@ def extract_images_from_email(msg):
                     image = download_image_from_url(url)
                     if image:
                         image_list.append(image)
-    return image_list, original_image_list
+    return image_list
 
 
 def download_image_from_url(url):
@@ -419,6 +450,8 @@ def extract_and_update_camera_info(CAMERA_LOCATIONS_PATH, camera_id, battery=Non
     else:
         df.loc[df['Camera ID'] == camera_id, 'SD Memory %'] = sd_memory
 
+    df.loc[df['Camera ID'] == camera_id, 'Last Updated'] = current_time()
+
     # Save the updated CSV file
     df.to_csv('../data/camera_locations.csv', index=False)
 
@@ -470,7 +503,7 @@ def update_camera_data_dataframe(df, images_count, camera_id, camera_make, img_d
 
     # Printing the summary information
     print(
-        f"\n{current_time()} | Email Received"
+        f"{current_time()} | *** Email Received ***"
         f"\n{current_time()} | Images: {images_count}, Camera ID: {camera_id}, Camera Make: {camera_make}"
         f"\n{current_time()} | Date: {img_date}, Time: {img_time}, Temperature: {temp_deg_c}"
         f"\n{current_time()} | Battery: {battery}%, SD Memory: {sd_memory}%"
@@ -483,7 +516,7 @@ def update_camera_data_dataframe(df, images_count, camera_id, camera_make, img_d
     return df
 
 def current_time():
-    now = datetime.now().strftime("%y-%m-%d %H:%M:%S")
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return now
 
 
@@ -495,7 +528,7 @@ def current_time():
 from collections import Counter
 import pandas as pd
 
-def generate_alert_caption(df, num_images, SPECIES_OF_INTEREST, EMAIL_USER, ALERT_LANGUAGE="en"):
+def generate_alert_caption(df, human_warning, num_images, SPECIES_OF_INTEREST, EMAIL_USER, ALERT_LANGUAGE="en"):
     
     alert_caption = ""
 
@@ -521,15 +554,10 @@ def generate_alert_caption(df, num_images, SPECIES_OF_INTEREST, EMAIL_USER, ALER
     human_count = df['Human Count'].iloc[-num_images:].tolist()
     vehicle_count = df['Vehicle Count'].iloc[-num_images:].tolist()
     species_classes = df['Species Classes'].iloc[-num_images:].tolist()
-    species_confidences = df['Species Confidences'].iloc[-num_images:].tolist()
-
-    # Trigger a warning if humans or vehicles are detected in the image sequence
-    human_warning = any(count > 0 for count in human_count) or any(count > 0 for count in vehicle_count)        
+    species_confidences = df['Species Confidences'].iloc[-num_images:].tolist() 
 
     # Determine if a priority alert should be sent (e.g. wild boar or bear detected)
     priority_alert = None
-
-
 
     for species_list in species_classes:
         for species in SPECIES_OF_INTEREST:
@@ -546,15 +574,27 @@ def generate_alert_caption(df, num_images, SPECIES_OF_INTEREST, EMAIL_USER, ALER
 
 
 
-    species_counts = Counter(primary_species)
-    max_count = max(species_counts.values())
-    most_common_species = [species for species, count in species_counts.items() if count == max_count]
+    most_common_species = ""
+    # Remove "Empty", "Human", and "Vehicle"
+    primary_species_modified = [species for species in primary_species if species not in {"Empty", "Human", "Vehicle"}]
+    species_counts = Counter(primary_species_modified)
+    print(species_counts)
+    if species_counts:
 
-    if len(most_common_species) == 1:
-        sequence_primary_species = (most_common_species[0])
-    else:
-        sequence_primary_species = ", ".join(most_common_species)
+        print("species cont exists")
 
+        max_count = max(species_counts.values())
+        most_common_species = [species for species, count in species_counts.items() if count == max_count]
+
+        if len(most_common_species) == 1:
+            sequence_primary_species = (most_common_species[0])
+        else:
+            sequence_primary_species = ", ".join(most_common_species)
+
+        # Determine the maximum occurrences of the primary species in any single image
+        sequence_primary_species_count = max(
+            [image_species_list.count(sequence_primary_species) for image_species_list in species_classes if isinstance(image_species_list, list)]
+        )
 
 
     unique_species = set(species for sublist in species_classes for species in sublist)
@@ -564,9 +604,6 @@ def generate_alert_caption(df, num_images, SPECIES_OF_INTEREST, EMAIL_USER, ALER
         non_interest_species_str = "0"
     else:
         non_interest_species_str = ", ".join(non_interest_species) 
-
-
-
 
     wild_boar_confidences = [conf for species_list, conf_list in zip(species_classes, species_confidences) for species, conf in zip(species_list, conf_list) if species == "Wild Boar"]
     bear_confidences = [conf for species_list, conf_list in zip(species_classes, species_confidences) for species, conf in zip(species_list, conf_list) if species == "Bear"]
@@ -604,6 +641,7 @@ def generate_alert_caption(df, num_images, SPECIES_OF_INTEREST, EMAIL_USER, ALER
 
     other_count = int(max(animal_count)) - int(max(wild_boar_count)) - int(max(bear_count))
 
+    print(f"Human warning {human_warning}")
 
     if priority_alert:
         if priority_alert_count == 1:
@@ -613,18 +651,22 @@ def generate_alert_caption(df, num_images, SPECIES_OF_INTEREST, EMAIL_USER, ALER
         print(f"{current_time()} | PRIORITY ALERT: AT LEAST {int(priority_alert_count)} {priority_alert.upper()} DETECTED IN IMAGE SEQUENCE")
 
         if human_warning:
-            alert_caption += f"\nWARNING: **{int(max(max(human_count), max(vehicle_count)))} HUMAN(S) ALSO DETECTED**"
-            print(f"{current_time()} | WARNING: {int(max(max(human_count), max(vehicle_count)))} HUMAN/VEHICLE(S) DETECTED IN IMAGE SEQUENCE")
+            alert_caption += f"\n<b>WARNING: {int(max(human_count))} HUMAN(S) and {int(max(vehicle_count))} VEHICLES(S) ALSO DETECTED</b>"
+
     elif human_warning:
         # Plural handling not added to emphasise human presence in case of human under-detection
-        alert_caption = f"🚶‍➡️<b> {int(max(human_count))} HUMAN(S) DETECTED </b>🚶"
-        print(f"{current_time()} | WARNING: {int(max(human_count))} HUMAN/VEHICLE(S) DETECTED IN IMAGE SEQUENCE")
+        if human_count > 0:
+            alert_caption = f"🚶‍➡️<b> {int(max(vehicle_count))} HUMAN(S) DETECTED </b>🚶"
+        if vehicle_count > 0:
+            alert_caption += "\n" if human_count > 0 else ""
+            alert_caption = f"🚜<b> {int(max(vehicle_count))} VEHICLES(S) DETECTED </b>🚜"
+        print(f"{current_time()} | WARNING: {int(max(human_count))} HUMAN(S) and {int(max(vehicle_count))} VEHICLES(S) DETECTED IN IMAGE SEQUENCE")
     else:
-        if max(animal_count) == 1:
-            alert_caption = f"🦊<b> {int(max(animal_count))} {sequence_primary_species} Detected </b> 🦡"
+        if sequence_primary_species_count == 1:
+            alert_caption = f"🦊<b> {int(sequence_primary_species_count)} {sequence_primary_species} Detected </b> 🦡"
         else:
-            alert_caption = f"🦊 <b> {int(max(animal_count))} {sequence_primary_species}s Detected </b> 🦡"
-        print(f"{current_time()} | {int(max(animal_count))} Non-Priority Animal(s) Detected")
+            alert_caption = f"🦊 <b> {int(sequence_primary_species_count)} {sequence_primary_species}s Detected </b> 🦡"
+        print(f"{current_time()} | {int(sequence_primary_species_count)} Non-Priority Animal(s) ({sequence_primary_species}) Detected")
 
     alert_caption += f"\n\n🕔 Time: {img_time}"
     alert_caption += f"\n🌍 Location: {location}"
@@ -655,13 +697,27 @@ def generate_alert_caption(df, num_images, SPECIES_OF_INTEREST, EMAIL_USER, ALER
     df.iloc[-num_images:, df.columns.get_loc('Alert Message')] = flattened_alert_caption
 
 
-    return df, alert_caption, human_warning, priority_alert
+    return df, alert_caption, priority_alert
 
 
 from PIL import Image, ImageDraw
 import io
 
-def annotate_images(df, images):
+def annotate_images(df, images, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END):
+    
+    if human_warning:
+
+        current_time_in_romania = get_current_time_in_romania()
+
+        if HUMAN_ALERT_START <= current_time_in_romania or current_time_in_romania < HUMAN_ALERT_END:
+            print(f"{current_time()} | Time in Romania: {current_time_in_romania} - sending human photos")
+        else:
+            print(f"{current_time()} | Time in Romania: {current_time_in_romania} - human photos EXCLUDED from alert")
+            return None
+
+    else:
+        print(f"{current_time()} | No human warning - sending photos regardless of time")
+
     image_list = []
     
     # Extract the last len(images) rows
@@ -703,7 +759,7 @@ def annotate_images(df, images):
                 label = f"Unknown {d_conf * 100:.0f}%"
                 
             # Draw bounding box
-            draw.rectangle([x1, y1, x2, y2], outline=color, width=3)
+            draw.rectangle([x1, y1, x2, y2], outline=color, width=2)
             draw.text((x1, y1 - 10), label, fill=color)
         
         image_list.append(image)
@@ -718,7 +774,52 @@ import time
 from requests.exceptions import ConnectionError, HTTPError
 
 def send_alert_to_telegram(bot_token, chat_id, photos, caption):
-    if photos is None:
+    def prepare_files(photos):
+        media = []
+        files = {}
+        for idx, photo in enumerate(photos):
+            buf = io.BytesIO()
+            photo.save(buf, format='JPEG')
+            buf.seek(0)
+            file_name = f'photo{idx}.jpg'
+            files[file_name] = buf.getvalue()  # Store the bytes data
+            media.append({
+                'type': 'photo',
+                'media': f'attach://{file_name}',
+                'caption': caption if idx == 0 else "",
+                'parse_mode': 'HTML'  # Enable HTML parsing for each media item
+            })
+        return media, files
+
+    def send_request(url, data, files, retries=0, MAX_RETRIES=5):
+        if retries >= MAX_RETRIES:
+            raise Exception("Max retries reached")
+
+        try:
+            # Convert files dictionary to the required format for requests
+            files_prepared = {name: (name, io.BytesIO(buf), 'image/jpeg') for name, buf in files.items()}
+            response = requests.post(url, data=data, files=files_prepared)
+            if response.status_code == 429:
+                # Handle rate limit
+                retry_after = int(response.headers.get("Retry-After", 1))
+                print(f"ATTEMPT {retries + 1}. Error response:", response.json())  # Print the error response for debugging
+                retry_after = retry_after + 10
+                print(f"Rate limited. Retrying after {retry_after} seconds.")
+                time.sleep(retry_after)
+                return send_request(url, data, files, retries + 1)  # Retry after delay
+            if response.status_code != 200:
+                print(f"ATTEMPT {retries + 1}. Error response:", response.json())  # Print the error response for debugging
+                print("Request data:", data)  # Print request data for debugging
+                if files:
+                    print("Request files:", files)  # Print request files for debugging
+            response.raise_for_status()
+            return response
+        except (ConnectionError, HTTPError) as e:
+            print(f"ATTEMPT {retries + 1}. Connection error: {e}. Retrying in 10 seconds...")
+            time.sleep(10)  # Wait for 10 seconds before retrying
+            return send_request(url, data, files, retries + 1)
+
+    if photos is None or len(photos) == 0:
         # URL for sending text message
         url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
         data = {
@@ -727,61 +828,26 @@ def send_alert_to_telegram(bot_token, chat_id, photos, caption):
             'parse_mode': 'HTML'  # Enable HTML parsing
         }
         files = {}
+        response = send_request(url, data, files)
     else:
         # URL for sending media group
         url = f"https://api.telegram.org/bot{bot_token}/sendMediaGroup"
-        media = []
-        files = {}
+        media, files = prepare_files(photos)
 
-        for idx, photo in enumerate(photos):
-            buf = io.BytesIO()
-            photo.save(buf, format='JPEG')
-            buf.seek(0)
-            file_name = f'photo{idx}.jpg'
-            files[file_name] = buf  # Store the BytesIO object
-
-            media.append({
-                'type': 'photo',
-                'media': f'attach://{file_name}',
-                'caption': caption if idx == 0 else "",
-                'parse_mode': 'HTML'  # Enable HTML parsing for each media item
-            })
-
-        # Prepare the data and files for the request
+        # Prepare the data for the request
         data = {
             'chat_id': chat_id,
             'media': json.dumps(media),
             'parse_mode': 'HTML'  # Ensure HTML parsing is enabled globally
         }
-        files = {name: (name, buf, 'image/jpeg') for name, buf in files.items()}
 
-    def send_request(retries=0, MAX_RETRIES=5):
-        if retries >= MAX_RETRIES:
-            raise Exception("Max retries reached")
+        # Ensure files are not empty
+        for file_name, file_content in files.items():
+            if len(file_content) == 0:
+                raise ValueError(f"The file {file_name} is empty.")
 
-        try:
-            response = requests.post(url, data=data, files=files)
-            if response.status_code == 429:
-                # Handle rate limit
-                retry_after = int(response.headers.get("Retry-After", 1))
-                retry_after += 10
-                print(f"Rate limited. Retrying after {retry_after} seconds.")
-                time.sleep(retry_after)
-                return send_request(retries + 1)  # Retry after delay
-            if response.status_code != 200:
-                print("Error response:", response.json())  # Print the error response for debugging
-                print("Request data:", data)  # Print request data for debugging
-                if files:
-                    print("Request files:", files)  # Print request files for debugging
-                print("Caption sent:", caption)  # Print the caption sent for debugging
-            response.raise_for_status()
-            return response
-        except (ConnectionError, HTTPError) as e:
-            print(f"Connection error: {e}. Retrying in 10 seconds...")
-            time.sleep(10)  # Wait for 5 seconds before retrying
-            return send_request(retries + 1)
+        response = send_request(url, data, files)
 
-    response = send_request()
     print(f"{current_time()} | Alert sent.")
 
 
@@ -792,7 +858,7 @@ def send_alert_to_telegram(bot_token, chat_id, photos, caption):
 ##################################################
 
 
-def valid_detections(df, images):
+def detections_in_sequence(df, images):
     last_rows = df.iloc[-len(images):]
     human_or_vehicle_present = (last_rows['Human Count'] > 0).any() or (last_rows['Vehicle Count'] > 0).any()
     primary_species_not_empty = (last_rows['Primary Species'] != "Empty").any()
@@ -810,12 +876,14 @@ import os
 from PIL import Image
 
 
-def save_images(df, images, PHOTOS_PATH):
+def save_images(df, images, human_warning, PHOTOS_PATH):
     # Ensure the PHOTOS_PATH directory exists
     os.makedirs(PHOTOS_PATH, exist_ok=True)
 
     # Get the last len(images) rows of df
     last_rows = df.tail(len(images))
+    
+    print(f"DEBUG: len image {len(images)}")
 
     # Iterate through the images and corresponding rows in the DataFrame
     for index, (image, (_, row)) in enumerate(zip(images, last_rows.iterrows())):
@@ -823,7 +891,11 @@ def save_images(df, images, PHOTOS_PATH):
         file_id = row['File ID']
 
         # Create directory for the primary species if it doesn't exist
-        species_dir = os.path.join(PHOTOS_PATH, primary_species)
+        if human_warning:
+            species_dir = os.path.join(PHOTOS_PATH, "Human")
+        else:
+            species_dir = os.path.join(PHOTOS_PATH, primary_species)
+        
         os.makedirs(species_dir, exist_ok=True)
 
         # Define the file path for the image
@@ -831,6 +903,8 @@ def save_images(df, images, PHOTOS_PATH):
 
         # Save the image
         image.save(file_path, format='JPEG')
+
+        print(f"{current_time()} | Image {index + 1} saved at: {file_path}")
 
         # Update the File Path column in the DataFrame
         df.at[row.name, 'File Path'] = file_path
