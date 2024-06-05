@@ -530,6 +530,7 @@ import pandas as pd
 
 def generate_alert_caption(df, human_warning, num_images, SPECIES_OF_INTEREST, EMAIL_USER, ALERT_LANGUAGE="en"):
     
+
     alert_caption = ""
 
     # Summary variables
@@ -578,10 +579,8 @@ def generate_alert_caption(df, human_warning, num_images, SPECIES_OF_INTEREST, E
     # Remove "Empty", "Human", and "Vehicle"
     primary_species_modified = [species for species in primary_species if species not in {"Empty", "Human", "Vehicle"}]
     species_counts = Counter(primary_species_modified)
-    print(species_counts)
-    if species_counts:
 
-        print("species cont exists")
+    if species_counts:
 
         max_count = max(species_counts.values())
         most_common_species = [species for species, count in species_counts.items() if count == max_count]
@@ -641,7 +640,6 @@ def generate_alert_caption(df, human_warning, num_images, SPECIES_OF_INTEREST, E
 
     other_count = int(max(animal_count)) - int(max(wild_boar_count)) - int(max(bear_count))
 
-    print(f"Human warning {human_warning}")
 
     if priority_alert:
         if priority_alert_count == 1:
@@ -655,10 +653,10 @@ def generate_alert_caption(df, human_warning, num_images, SPECIES_OF_INTEREST, E
 
     elif human_warning:
         # Plural handling not added to emphasise human presence in case of human under-detection
-        if human_count > 0:
-            alert_caption = f"🚶‍➡️<b> {int(max(vehicle_count))} HUMAN(S) DETECTED </b>🚶"
-        if vehicle_count > 0:
-            alert_caption += "\n" if human_count > 0 else ""
+        if max(human_count) > 0:
+            alert_caption = f"🚶‍➡️<b> {int(max(human_count))} HUMAN(S) DETECTED </b>🚶"
+        if max(vehicle_count) > 0:
+            alert_caption += "\n" if max(human_count) > 0 else ""
             alert_caption = f"🚜<b> {int(max(vehicle_count))} VEHICLES(S) DETECTED </b>🚜"
         print(f"{current_time()} | WARNING: {int(max(human_count))} HUMAN(S) and {int(max(vehicle_count))} VEHICLES(S) DETECTED IN IMAGE SEQUENCE")
     else:
@@ -883,8 +881,6 @@ def save_images(df, images, human_warning, PHOTOS_PATH):
     # Get the last len(images) rows of df
     last_rows = df.tail(len(images))
     
-    print(f"DEBUG: len image {len(images)}")
-
     # Iterate through the images and corresponding rows in the DataFrame
     for index, (image, (_, row)) in enumerate(zip(images, last_rows.iterrows())):
         primary_species = row['Primary Species']
