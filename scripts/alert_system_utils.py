@@ -653,11 +653,11 @@ def generate_alert_caption(df, human_warning, num_images, SPECIES_OF_INTEREST, E
 
     elif human_warning:
         # Plural handling not added to emphasise human presence in case of human under-detection
-        if max(human_count) > 0:
+        if int(max(human_count)) > 0:
             alert_caption = f"🚶‍➡️<b> {int(max(human_count))} HUMAN(S) DETECTED </b>🚶"
-        if max(vehicle_count) > 0:
-            alert_caption += "\n" if max(human_count) > 0 else ""
-            alert_caption = f"🚜<b> {int(max(vehicle_count))} VEHICLES(S) DETECTED </b>🚜"
+        if int(max(vehicle_count)) > 0:
+            alert_caption += "\n" if int(max(human_count)) > 0 else ""
+            alert_caption += f"🚜<b> {int(max(vehicle_count))} VEHICLES(S) DETECTED </b>🚜"
         print(f"{current_time()} | WARNING: {int(max(human_count))} HUMAN(S) and {int(max(vehicle_count))} VEHICLES(S) DETECTED IN IMAGE SEQUENCE")
     else:
         if sequence_primary_species_count == 1:
