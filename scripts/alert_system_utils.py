@@ -580,17 +580,21 @@ def generate_alert_caption(df, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END
     # Remove "Empty", "Human", and "Vehicle"
     primary_species_modified = [species for species in primary_species if species not in {"Empty", "Human", "Vehicle"}]
     species_counts = Counter(primary_species_modified)
-
+    # print(f"species_counts: {species_counts}")
     if species_counts:
 
         max_count = max(species_counts.values())
+        # print(f"max_count: {max_count}")
         most_common_species = [species for species, count in species_counts.items() if count == max_count]
+        # print(f"most_common_species: {most_common_species}")
         if len(most_common_species) == 1:
             sequence_primary_species = (most_common_species[0])
+            # print(f"sequence_primary_species: {sequence_primary_species}")
             # Determine the maximum occurrences of the primary species in any single image
             sequence_primary_species_count = max(
                 [image_species_list.count(sequence_primary_species) for image_species_list in species_classes if isinstance(image_species_list, list)]
             )
+            # print(f"sequence_primary_species_count: {sequence_primary_species_count}")
         else:
             sequence_primary_species = ", ".join(most_common_species)
             sequence_primary_species_count = max(
@@ -848,7 +852,7 @@ def annotate_images(df, images, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_EN
             draw.rectangle(text_background, fill=color)
             
             # Draw text with a dynamic offset for alignment
-            offset = int(font_size * 0.25)  # Dynamic offset based on the font size
+            offset = int(font_size * 0.2)  # Dynamic offset based on the font size
             draw.text((x1, y1 - text_height - offset), label, fill="white", font=font)
         
         image_list.append(image)
@@ -1016,6 +1020,8 @@ def get_romanian_class(input_value, CLASSIFIER_CLASSES, ROMANIAN_CLASSES):
         if species in CLASSIFIER_CLASSES:
             index = CLASSIFIER_CLASSES.index(species)
             romanian_equivalents.append(ROMANIAN_CLASSES[index])
+        elif species == "Unknown":
+            romanian_equivalents.append("Necunoscut")
         else:
             romanian_equivalents.append(None)
     
