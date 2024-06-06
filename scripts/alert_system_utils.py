@@ -585,16 +585,18 @@ def generate_alert_caption(df, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END
 
         max_count = max(species_counts.values())
         most_common_species = [species for species, count in species_counts.items() if count == max_count]
-
         if len(most_common_species) == 1:
             sequence_primary_species = (most_common_species[0])
+            # Determine the maximum occurrences of the primary species in any single image
+            sequence_primary_species_count = max(
+                [image_species_list.count(sequence_primary_species) for image_species_list in species_classes if isinstance(image_species_list, list)]
+            )
         else:
             sequence_primary_species = ", ".join(most_common_species)
+            sequence_primary_species_count = max(
+                [image_species_list.count(most_common_species[0]) for image_species_list in species_classes if isinstance(image_species_list, list)]
+            )
 
-        # Determine the maximum occurrences of the primary species in any single image
-        sequence_primary_species_count = max(
-            [image_species_list.count(sequence_primary_species) for image_species_list in species_classes if isinstance(image_species_list, list)]
-        )
 
 
     unique_species = set(species for sublist in species_classes for species in sublist)
