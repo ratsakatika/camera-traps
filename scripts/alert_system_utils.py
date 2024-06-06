@@ -528,10 +528,11 @@ def current_time():
 from collections import Counter
 import pandas as pd
 
-def generate_alert_caption(df, human_warning, num_images, SPECIES_OF_INTEREST, EMAIL_USER, ALERT_LANGUAGE="en"):
+def generate_alert_caption(df, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END, num_images, SPECIES_OF_INTEREST, EMAIL_USER, ALERT_LANGUAGE, CLASSIFIER_CLASSES, ROMANIAN_CLASSES):
     
-
+    
     alert_caption = ""
+    sequence_primary_species = None
 
     # Summary variables
     master_row = df.iloc[len(df) - num_images] # First row in the sequence
@@ -641,54 +642,113 @@ def generate_alert_caption(df, human_warning, num_images, SPECIES_OF_INTEREST, E
     other_count = int(max(animal_count)) - int(max(wild_boar_count)) - int(max(bear_count))
 
 
-    if priority_alert:
-        if priority_alert_count == 1:
-            alert_caption = f"🚨<b> {int(priority_alert_count)} {priority_alert.upper()} DETECTED </b>🚨"
+    if ALERT_LANGUAGE == "en":
+        
+        if priority_alert:
+            if priority_alert_count == 1:
+                alert_caption = f"🚨<b> {int(priority_alert_count)} {priority_alert.upper()} DETECTED </b>🚨"
+            else:
+                alert_caption = f"🚨<b> {int(priority_alert_count)} {priority_alert.upper()}S DETECTED </b>🚨"
+            print(f"{current_time()} | PRIORITY ALERT: AT LEAST {int(priority_alert_count)} {priority_alert.upper()} DETECTED IN IMAGE SEQUENCE")
+
+            if human_warning:
+                alert_caption += f"\n<b>WARNING: {int(max(human_count))} HUMAN(S) and {int(max(vehicle_count))} VEHICLES(S) ALSO DETECTED</b>"
+
+        elif human_warning:
+            # Plural handling not added to emphasise human presence in case of human under-detection
+            if int(max(human_count)) > 0:
+                alert_caption = f"🚶‍➡️<b> {int(max(human_count))} HUMAN(S) DETECTED </b>🚶"
+            if int(max(vehicle_count)) > 0:
+                alert_caption += "\n" if int(max(human_count)) > 0 else ""
+                alert_caption += f"🚜<b> {int(max(vehicle_count))} VEHICLES(S) DETECTED </b>🚜"
+            print(f"{current_time()} | WARNING: {int(max(human_count))} HUMAN(S) and {int(max(vehicle_count))} VEHICLES(S) DETECTED IN IMAGE SEQUENCE")
         else:
-            alert_caption = f"🚨<b> {int(priority_alert_count)} {priority_alert.upper()}S DETECTED </b>🚨"
-        print(f"{current_time()} | PRIORITY ALERT: AT LEAST {int(priority_alert_count)} {priority_alert.upper()} DETECTED IN IMAGE SEQUENCE")
+            if sequence_primary_species_count == 1:
+                alert_caption = f"🦊<b> {int(sequence_primary_species_count)} {sequence_primary_species} Detected </b> 🦡"
+            else:
+                alert_caption = f"🦊 <b> {int(sequence_primary_species_count)} {sequence_primary_species}s Detected </b> 🦡"
+            print(f"{current_time()} | {int(sequence_primary_species_count)} Non-Priority Animal(s) ({sequence_primary_species}) Detected")
+
+        alert_caption += f"\n\n🕔 Time: {img_time}"
+        alert_caption += f"\n🌍 Location: {location}"
+        alert_caption += f"\n📍 <a href='{map_url}'>Map Link</a>"
 
         if human_warning:
-            alert_caption += f"\n<b>WARNING: {int(max(human_count))} HUMAN(S) and {int(max(vehicle_count))} VEHICLES(S) ALSO DETECTED</b>"
+            alert_caption += f"\n\n<i>Do not share photos of humans outside of FCC. No photos of humans are sent between {HUMAN_ALERT_START} and {HUMAN_ALERT_END} to protect privacy. Authorised users can check {EMAIL_USER} to view the photos.</i>"
 
-    elif human_warning:
-        # Plural handling not added to emphasise human presence in case of human under-detection
-        if int(max(human_count)) > 0:
-            alert_caption = f"🚶‍➡️<b> {int(max(human_count))} HUMAN(S) DETECTED </b>🚶"
-        if int(max(vehicle_count)) > 0:
-            alert_caption += "\n" if int(max(human_count)) > 0 else ""
-            alert_caption += f"🚜<b> {int(max(vehicle_count))} VEHICLES(S) DETECTED </b>🚜"
-        print(f"{current_time()} | WARNING: {int(max(human_count))} HUMAN(S) and {int(max(vehicle_count))} VEHICLES(S) DETECTED IN IMAGE SEQUENCE")
+        alert_caption += f"\n--------------------"
+        alert_caption += f"\n🧍 Humans: {int(max(human_count))}"
+        alert_caption += f"\n🚜 Vehicles: {int(max(vehicle_count))}"
+        alert_caption += f"\n🐗 Wild Boars: {int(max(wild_boar_count))}{wild_boar_confidence_str}"
+        alert_caption += f"\n🐻 Bears: {int(max(bear_count))}{bear_confidence_str}"
+        alert_caption += f"\n🦊🦌🦡🦉Others: {other_count}{other_confidence_str}"
+        alert_caption += f"\n📷 ID: {int(sequence_id)} | {img_date}"
+
+        alert_caption += f"\n--------------------"
+        alert_caption += f"\nCamera ID: {camera_id}"
+        alert_caption += f"; Brand: {camera_make}"
+        alert_caption += f"; Battery: {battery}%"
+        alert_caption += f"; Storage: {sd_memory}%"
+        if pd.notna(temperature):
+            alert_caption += f"; Temperature: {temperature}℃"
+        alert_caption += f"; GPS: {gps}"
+
     else:
-        if sequence_primary_species_count == 1:
-            alert_caption = f"🦊<b> {int(sequence_primary_species_count)} {sequence_primary_species} Detected </b> 🦡"
+
+        if not priority_alert == None:
+            priority_alert_romanian = get_romanian_class(priority_alert, CLASSIFIER_CLASSES, ROMANIAN_CLASSES)
+        if not sequence_primary_species == None:
+            sequence_primary_species_romanian = get_romanian_class(sequence_primary_species, CLASSIFIER_CLASSES, ROMANIAN_CLASSES)
+
+
+        if priority_alert:
+            if priority_alert_count == 1:
+                alert_caption = f"🚨<b> {int(priority_alert_count)} {priority_alert_romanian.upper()} DETECTAT </b>🚨"
+            else:
+                alert_caption = f"🚨<b> {int(priority_alert_count)} {priority_alert_romanian.upper()} DETECTAȚI </b>🚨"
+            print(f"{current_time()} | PRIORITY ALERT: AT LEAST {int(priority_alert_count)} {priority_alert.upper()} DETECTED IN IMAGE SEQUENCE")
+
+            if human_warning:
+                alert_caption += f"\n<b>ATENȚIE: {int(max(human_count))} OM/OAMENI și {int(max(vehicle_count))} VEHICUL(E) DETECTAT(E)</b>"
+
+        elif human_warning:
+            # Plural handling not added to emphasise human presence in case of human under-detection
+            if int(max(human_count)) > 0:
+                alert_caption = f"🚶‍➡️<b> {int(max(human_count))} OM/OAMENI DETECTAT(I) </b>🚶"
+            if int(max(vehicle_count)) > 0:
+                alert_caption += "\n" if int(max(human_count)) > 0 else ""
+                alert_caption += f"🚜<b> {int(max(vehicle_count))} VEHICUL(E) DETECTAT(E)  </b>🚜"
+            print(f"{current_time()} | WARNING: {int(max(human_count))} HUMAN(S) and {int(max(vehicle_count))} VEHICLES(S) DETECTED IN IMAGE SEQUENCE")
         else:
-            alert_caption = f"🦊 <b> {int(sequence_primary_species_count)} {sequence_primary_species}s Detected </b> 🦡"
-        print(f"{current_time()} | {int(sequence_primary_species_count)} Non-Priority Animal(s) ({sequence_primary_species}) Detected")
+            if sequence_primary_species_count == 1:
+                alert_caption = f"🦊<b> {int(sequence_primary_species_count)} {sequence_primary_species_romanian} Detectat </b> 🦡"
+            else:
+                alert_caption = f"🦊 <b> {int(sequence_primary_species_count)} {sequence_primary_species_romanian} Detectați </b> 🦡"
+            print(f"{current_time()} | {int(sequence_primary_species_count)} Non-Priority Animal(s) ({sequence_primary_species_romanian}) Detected")
 
-    alert_caption += f"\n\n🕔 Time: {img_time}"
-    alert_caption += f"\n🌍 Location: {location}"
-    alert_caption += f"\n📍 <a href='{map_url}'>Map Link</a>"
+        alert_caption += f"\n\n🕔 Ora: {img_time}"
+        alert_caption += f"\n🌍 Toponim: {location}"
+        alert_caption += f"\n📍 <a href='{map_url}'>Arata pe harta</a>"
 
-    if human_warning:
-        alert_caption += f"\n\n<i>Do not share photos of humans outside of FCC. No photos of humans are sent between 06:00 and 21:00 to protect privacy. Authorised users can check {EMAIL_USER} to view the photos.</i>"
+        if human_warning:
+            alert_caption += f"\n\n<i>Do not share photos of humans outside of FCC. No photos of humans are sent between {HUMAN_ALERT_START} and {HUMAN_ALERT_END} to protect privacy. Authorised users can check {EMAIL_USER} to view the photos.</i>"
 
-    alert_caption += f"\n--------------------"
-    alert_caption += f"\n🧍 Humans: {int(max(human_count))}"
-    alert_caption += f"\n🚜 Vehicles: {int(max(vehicle_count))}"
-    alert_caption += f"\n🐗 Wild Boars: {int(max(wild_boar_count))}{wild_boar_confidence_str}"
-    alert_caption += f"\n🐻 Bears: {int(max(bear_count))}{bear_confidence_str}"
-    alert_caption += f"\n🦊🦌🦡🦉Others: {other_count}{other_confidence_str}"
-    alert_caption += f"\n📷 ID: {int(sequence_id)}, {img_date}"
+        alert_caption += f"\n--------------------"
+        alert_caption += f"\n🧍 Oameni: {int(max(human_count))}"
+        alert_caption += f"\n🚜 Vehicule: {int(max(vehicle_count))}"
+        alert_caption += f"\n🐗 Mistreți: {int(max(wild_boar_count))}{wild_boar_confidence_str}"
+        alert_caption += f"\n🐻 Urși: {int(max(bear_count))}{bear_confidence_str}"
+        alert_caption += f"\n🦊🦌🦡🦉 Altele: {other_count}{other_confidence_str}"
+        alert_caption += f"\n📷 ID: {int(sequence_id)} | {img_date}"
 
-    alert_caption += f"\n--------------------"
-    alert_caption += f"\nCamera ID: {camera_id}"
-    alert_caption += f"; Brand: {camera_make}"
-    alert_caption += f"; Battery: {battery}%"
-    alert_caption += f"; Storage: {sd_memory}%"
-    if pd.notna(temperature):
-        alert_caption += f"; Temperature: {temperature}℃"
-    alert_caption += f"; GPS: {gps}"
+        alert_caption += f"\n--------------------"
+        alert_caption += f"\nCameră: {camera_id}"
+        alert_caption += f"; Marcă: {camera_make}"
+        alert_caption += f"; Baterie: {battery}%"
+        alert_caption += f"; Spatiu pe card: {sd_memory}%"
+        if pd.notna(temperature):
+            alert_caption += f"; Temperatură: {temperature}℃"
+        alert_caption += f"; GPS: {gps}"
 
 
     flattened_alert_caption = alert_caption.replace('\n', '. ')
@@ -697,11 +757,11 @@ def generate_alert_caption(df, human_warning, num_images, SPECIES_OF_INTEREST, E
 
     return df, alert_caption, priority_alert
 
-
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 import io
+from IPython.display import display
 
-def annotate_images(df, images, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END):
+def annotate_images(df, images, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END, ALERT_LANGUAGE, CLASSIFIER_CLASSES, ROMANIAN_CLASSES):
     
     if human_warning:
 
@@ -732,10 +792,12 @@ def annotate_images(df, images, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_EN
         species_confidences = row_data['Species Confidences']
         
         species_idx = 0  # to keep track of the current species index
+        width, height = image.size
+        font_size = max(10, int(height * 0.02))  # font size is 2% of the image height, with a minimum of 10
+        font = ImageFont.truetype("../Ubuntu-B.ttf", font_size)
 
         for box, d_class, d_conf in zip(detection_boxes, detection_classes, detection_confidences):
             # Convert relative coordinates to absolute coordinates
-            width, height = image.size
             x1 = int(box[0] * width)
             y1 = int(box[1] * height)
             x2 = int((box[0] + box[2]) * width)
@@ -744,21 +806,48 @@ def annotate_images(df, images, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_EN
             # Set color and label based on detection class
             if d_class == '1':  # Animal
                 color = 'red'
-                label = f"{species_classes[species_idx]} {species_confidences[species_idx] * 100:.0f}%"
+
+                if ALERT_LANGUAGE == "en":
+                    species_label = species_classes[species_idx]
+                else:
+                    species_label = get_romanian_class(species_classes[species_idx], CLASSIFIER_CLASSES, ROMANIAN_CLASSES)
+                    
+                label = f"{species_label} {species_confidences[species_idx] * 100:.0f}%"
                 species_idx += 1
             elif d_class == '2':  # Human
                 color = 'green'
-                label = f"Human {d_conf * 100:.0f}%"
+                if ALERT_LANGUAGE == "en":
+                    label = f"Human {d_conf * 100:.0f}%"
+                else:
+                    label = f"Om {d_conf * 100:.0f}%"
             elif d_class == '3':  # Vehicle
                 color = 'blue'
-                label = f"Vehicle {d_conf * 100:.0f}%"
+                if ALERT_LANGUAGE == "en":
+                    label = f"Vehicle {d_conf * 100:.0f}%"
+                else:
+                    label = f"Vehicule {d_conf * 100:.0f}%"
             else:
                 color = 'yellow'
-                label = f"Unknown {d_conf * 100:.0f}%"
+                if ALERT_LANGUAGE == "en":
+                    label = f"Unknown {d_conf * 100:.0f}%"
+                else:
+                    label = f"Unknown {d_conf * 100:.0f}%"
                 
             # Draw bounding box
             draw.rectangle([x1, y1, x2, y2], outline=color, width=2)
-            draw.text((x1, y1 - 10), label, fill=color)
+
+            # Get text size using textbbox
+            text_bbox = draw.textbbox((x1, y1), label, font=font)
+            text_width = text_bbox[2] - text_bbox[0]
+            text_height = text_bbox[3] - text_bbox[1]
+            text_background = [x1, y1 - text_height, x1 + text_width, y1]
+
+            # Draw text background
+            draw.rectangle(text_background, fill=color)
+            
+            # Draw text with a dynamic offset for alignment
+            offset = int(font_size * 0.25)  # Dynamic offset based on the font size
+            draw.text((x1, y1 - text_height - offset), label, fill="white", font=font)
         
         image_list.append(image)
     
@@ -906,3 +995,27 @@ def save_images(df, images, human_warning, PHOTOS_PATH):
         df.at[row.name, 'File Path'] = file_path
 
     return df
+
+def get_romanian_class(input_value, CLASSIFIER_CLASSES, ROMANIAN_CLASSES):
+    
+    if isinstance(input_value, str):
+        # Check if the string is a single species or a comma-separated list
+        if ', ' in input_value:
+            input_list = input_value.split(', ')
+        else:
+            input_list = [input_value]
+    elif isinstance(input_value, list):
+        input_list = input_value
+    else:
+        raise ValueError("Input must be a string or a list of strings")
+    
+    romanian_equivalents = []
+    for species in input_list:
+        if species in CLASSIFIER_CLASSES:
+            index = CLASSIFIER_CLASSES.index(species)
+            romanian_equivalents.append(ROMANIAN_CLASSES[index])
+        else:
+            romanian_equivalents.append(None)
+    
+    result = ", ".join([eq for eq in romanian_equivalents if eq is not None])
+    return result
