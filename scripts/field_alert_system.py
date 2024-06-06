@@ -33,7 +33,7 @@ IMAP_HOST = config['imap_config']['host']
 EMAIL_USER = config['imap_config']['user']
 EMAIL_PASS = config['imap_config']['password']
 TELEGRAM_BOT_TOKEN = config['telegram_config']['bot_token']
-TELEGRAM_CHAT_ID =  '-1002249589791' # config['telegram_config']['chat_id']  #  replace with config after tests # 
+TELEGRAM_CHAT_ID =  config['telegram_config']['chat_id']  # '-1002249589791' #  replace with config after tests # 
 
 # Detection and Classification Model Settings
 DETECTOR_MODEL_PATH = '../models/md_v5a.0.0.pt'
@@ -54,7 +54,7 @@ ROMANIAN_CLASSES = [
     "Capră(e)", "Caprior(are)", "Câine(i)", "Veveriță(e)", "Cal(i)", "Genetă(e)",
     "Arici", "Lagomorf(i)", "Lup(i)", "Râs(i)", "Marmotă(e)", 
     "Micromamifer(e)", "Muflon(i)", "Oaie(i)", "Mustelid(e)", "Pasăre(i)", 
-    "Urs(i)", "Nutrie(i)", "Vulpe(i)", "Mistret(iați)", "Vacă(i)"
+    "Urs(i)", "Nutrie(i)", "Vulpe(i)", "Mistret(i)", "Vacă(i)"
 ]
 SPECIES_OF_INTEREST = ["Wild Boar", "Bear"]
 CLASSIFICATION_THRESHOLD = 0.20
@@ -65,7 +65,7 @@ PHOTOS_PATH = '../data/photos/'
 ALERT_LANGUAGE = "ro" # Enter 'en' for English, 'ro' for Romanian
 HUMAN_ALERT_START = "21:00"
 HUMAN_ALERT_END = "06:00"
-CHECK_EMAIL_FREQUENCY = 10
+CHECK_EMAIL_FREQUENCY = 60
 
 # Initialise the Detection and Classifier Models
 device = set_device()
@@ -112,7 +112,7 @@ if __name__ == "__main__":
 
         except Exception as e:
             print(f"{current_time()} | An error occurred: {e}")
-            time.sleep(10)
+            time.sleep(CHECK_EMAIL_FREQUENCY)
             print(f"\n{current_time()} | Monitoring {EMAIL_USER} for new messages...")
             continue
 
