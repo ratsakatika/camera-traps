@@ -51,10 +51,10 @@ CLASSIFIER_CLASSES = [
 ]
 ROMANIAN_CLASSES = [
     "Bursuc", "Ibex", "Cerb", "Capră Neagră", "Pisică", 
-    "Capră", "Caprior(ară)", "Câine", "Veveriț", "Cal", "Genetă",
+    "Capră", "Caprior(ară)", "Câine", "Veveriță", "Cal", "Genetă",
     "Arici", "Lagomorf", "Lup", "Râs", "Marmotă", 
     "Micromamifer", "Muflon", "Oaie", "Mustelid", "Pasăre", 
-    "Urs", "Nutrie", "Vulpe", "Mistret", "Vacă"
+    "Urs", "Nutrie", "Vulpe", "Mistreț", "Vacă"
 ]
 SPECIES_OF_INTEREST = ["Wild Boar", "Bear"]
 CLASSIFICATION_THRESHOLD = 0.20
@@ -91,7 +91,7 @@ if __name__ == "__main__":
                     df, human_warning = detector(df, detector_model, images, DETECTION_THRESHOLD)
                     df = batch_classification(df, classifier_model, images, CLASSIFICATION_THRESHOLD)
                     if detections_in_sequence(df, images):
-                        df, alert_caption = generate_alert_caption(df, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END, len(images), SPECIES_OF_INTEREST, EMAIL_USER, ALERT_LANGUAGE, CLASSIFIER_CLASSES, ROMANIAN_CLASSES)                        
+                        df, alert_caption = generate_alert_caption(df, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END, len(images), SPECIES_OF_INTEREST, EMAIL_USER, ALERT_LANGUAGE, CLASSIFIER_CLASSES, ROMANIAN_CLASSES)
                         alert_images = annotate_images(df, images, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END, ALERT_LANGUAGE, CLASSIFIER_CLASSES, ROMANIAN_CLASSES)
                         send_alert_to_telegram(TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, alert_images, alert_caption)
                     else:
@@ -114,4 +114,3 @@ if __name__ == "__main__":
             time.sleep(CHECK_EMAIL_FREQUENCY)
             print(f"\n{current_time()} | Monitoring {EMAIL_USER} for new messages...")
             continue
-

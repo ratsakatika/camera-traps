@@ -661,7 +661,6 @@ def generate_alert_caption(df, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END
                 alert_caption += f"\n<b>WARNING: {int(max(human_count))} HUMAN(S) and {int(max(vehicle_count))} VEHICLES(S) ALSO DETECTED</b>"
 
         elif human_warning:
-            # Plural handling not added to emphasise human presence in case of human under-detection
             if int(max(human_count)) > 0:
                 alert_caption = f"🚶‍➡️<b> {int(max(human_count))} HUMAN(S) DETECTED </b>🚶"
             if int(max(vehicle_count)) > 0:
@@ -715,23 +714,30 @@ def generate_alert_caption(df, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END
             print(f"{current_time()} | PRIORITY ALERT: AT LEAST {int(priority_alert_count)} {priority_alert.upper()} DETECTED IN IMAGE SEQUENCE")
 
             if human_warning:
-                alert_caption += f"\n<b>ATENȚIE: {int(max(human_count))} OM/OAMENI și {int(max(vehicle_count))} VEHICUL(E) DETECTAT(E)</b>"
+                alert_caption += f"\n<b>ATENȚIE: {int(max(human_count))} OM/OAMENI ȘI {int(max(vehicle_count))} VEHICUL(E) DETECTAȚ(I/E)</b>"
 
         elif human_warning:
-            # Plural handling not added to emphasise human presence in case of human under-detection
             if int(max(human_count)) > 0:
-                alert_caption = f"🚶‍➡️<b> {int(max(human_count))} OM/OAMENI DETECTAT(I) </b>🚶"
+                if int(max(human_count)) > 1:
+                    alert_caption = f"🚶‍➡️<b> {int(max(human_count))} OAMENI DETECTAȚI </b>🚶"
+                else:
+                    alert_caption = f"🚶‍➡️<b> {int(max(human_count))} OM DETECTAT </b>🚶"
             if int(max(vehicle_count)) > 0:
                 alert_caption += "\n" if int(max(human_count)) > 0 else ""
-                alert_caption += f"🚜<b> {int(max(vehicle_count))} VEHICUL(E) DETECTAT(E)  </b>🚜"
+                if int(max(vehicle_count)) > 1:
+                    alert_caption += f"🚜<b> {int(max(vehicle_count))} VEHICULE DETECTATE </b>🚜"
+                else:
+                    alert_caption += f"🚜<b> {int(max(vehicle_count))} VEHICUL DETECTAT </b>🚜"
             print(f"{current_time()} | WARNING: {int(max(human_count))} HUMAN(S) and {int(max(vehicle_count))} VEHICLES(S) DETECTED IN IMAGE SEQUENCE")
         else:
-            if sequence_primary_species_count == 1:
-                alert_caption = f"🦊<b> {int(sequence_primary_species_count)} {sequence_primary_species_romanian} Detectat </b> 🦡"
-            else:
-                plural_sequence_primary_species_romanian = pluralize_romanian(sequence_primary_species_romanian, sequence_primary_species_count)
-                alert_caption = f"🦊 <b> {int(sequence_primary_species_count)} {plural_sequence_primary_species_romanian} Detectați </b> 🦡"
-            print(f"{current_time()} | {int(sequence_primary_species_count)} Non-Priority Animal(s) ({sequence_primary_species_romanian}) Detected")
+
+            gender = guess_gender(sequence_primary_species_romanian)  # Automatically guess the gender
+            species_translation = pluralize_romanian(sequence_primary_species_romanian, sequence_primary_species_count)
+            detected_translation = get_detected_word(sequence_primary_species_count, gender)
+
+            alert_caption = f"🦊<b> {int(sequence_primary_species_count)} {species_translation} {detected_translation} </b>🦡"
+
+            print(f"{current_time()} | {int(sequence_primary_species_count)} Non-Priority Animal(s) ({sequence_primary_species}) Detected")
 
         alert_caption += f"\n\n🕔 Ora: {img_time}"
         alert_caption += f"\n🌍 Toponim: {location}"
@@ -1029,12 +1035,30 @@ def get_romanian_class(input_value, CLASSIFIER_CLASSES, ROMANIAN_CLASSES):
     result = ", ".join([eq for eq in romanian_equivalents if eq is not None])
     return result
 
-def pluralize_romanian(word, count=1):
+def guess_gender(word):
+    if word == "Câine":
+        return "m"
+    elif word.endswith(('ă', 'e')):
+        return "f"
+    elif word.endswith(('u', 'i', 'n', 'r', 't', 's')):
+        return "m"
+    else:
+        return "n"
+
+def pluralize_romanian(word, count):
     if count > 1:
-        if word.endswith('ă'):
-            return word[:-1] + 'e'
+        if word == "Cal":
+            return "Cai"
+        elif word.endswith("ă"):
+            return word[:-1] + "e"
         elif word.endswith('e'):
-            return word[:-1] + 'i'
+            return word[:-1] + "i"
         else:
-            return word + 'i'
+            return word + "i"
     return word
+
+def get_detected_word(count, gender):
+    if count > 1:
+        return "Detectați" if gender in ["m", "n"] else "Detectate"
+    else:
+        return "Detectat" if gender in ["m", "n"] else "Detectată"
