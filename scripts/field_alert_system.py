@@ -92,7 +92,6 @@ if __name__ == "__main__":
                     df = batch_classification(df, classifier_model, images, CLASSIFICATION_THRESHOLD)
                     if detections_in_sequence(df, images):
                         df, alert_caption, priority_alert = generate_alert_caption(df, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END, len(images), SPECIES_OF_INTEREST, EMAIL_USER, ALERT_LANGUAGE, CLASSIFIER_CLASSES, ROMANIAN_CLASSES)
-                        human_warning = False
                         alert_images = annotate_images(df, images, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END, ALERT_LANGUAGE, CLASSIFIER_CLASSES, ROMANIAN_CLASSES)
                         send_alert_to_telegram(TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, alert_images, alert_caption)
                     else:
