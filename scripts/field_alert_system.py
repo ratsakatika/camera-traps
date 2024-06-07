@@ -33,7 +33,7 @@ IMAP_HOST = config['imap_config']['host']
 EMAIL_USER = config['imap_config']['user']
 EMAIL_PASS = config['imap_config']['password']
 TELEGRAM_BOT_TOKEN = config['telegram_config']['bot_token']
-TELEGRAM_CHAT_ID =  config['telegram_config']['chat_id']  # '-1002249589791' #  replace with config after tests # 
+TELEGRAM_CHAT_ID = config['telegram_config']['chat_id']  # '-1002249589791' # config['telegram_config']['chat_id']  #  replace with config after tests # 
 
 # Detection and Classification Model Settings
 DETECTOR_MODEL_PATH = '../models/md_v5a.0.0.pt'
@@ -50,11 +50,11 @@ CLASSIFIER_CLASSES = [
     "Bear", "Nutria", "Fox", "Wild Boar", "Cow"
 ]
 ROMANIAN_CLASSES = [
-    "Bursuc(i)", "Ibex", "Cerb(i)", "Capră Neagră(e)", "Pisică(i)", 
-    "Capră(e)", "Caprior(are)", "Câine(i)", "Veveriță(e)", "Cal(i)", "Genetă(e)",
-    "Arici", "Lagomorf(i)", "Lup(i)", "Râs(i)", "Marmotă(e)", 
-    "Micromamifer(e)", "Muflon(i)", "Oaie(i)", "Mustelid(e)", "Pasăre(i)", 
-    "Urs(i)", "Nutrie(i)", "Vulpe(i)", "Mistret(i)", "Vacă(i)"
+    "Bursuc", "Ibex", "Cerb", "Capră Neagră", "Pisică", 
+    "Capră", "Caprior(ară)", "Câine", "Veveriț", "Cal", "Genetă",
+    "Arici", "Lagomorf", "Lup", "Râs", "Marmotă", 
+    "Micromamifer", "Muflon", "Oaie", "Mustelid", "Pasăre", 
+    "Urs", "Nutrie", "Vulpe", "Mistret", "Vacă"
 ]
 SPECIES_OF_INTEREST = ["Wild Boar", "Bear"]
 CLASSIFICATION_THRESHOLD = 0.20
@@ -91,7 +91,7 @@ if __name__ == "__main__":
                     df, human_warning = detector(df, detector_model, images, DETECTION_THRESHOLD)
                     df = batch_classification(df, classifier_model, images, CLASSIFICATION_THRESHOLD)
                     if detections_in_sequence(df, images):
-                        df, alert_caption, priority_alert = generate_alert_caption(df, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END, len(images), SPECIES_OF_INTEREST, EMAIL_USER, ALERT_LANGUAGE, CLASSIFIER_CLASSES, ROMANIAN_CLASSES)
+                        df, alert_caption = generate_alert_caption(df, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END, len(images), SPECIES_OF_INTEREST, EMAIL_USER, ALERT_LANGUAGE, CLASSIFIER_CLASSES, ROMANIAN_CLASSES)                        
                         alert_images = annotate_images(df, images, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END, ALERT_LANGUAGE, CLASSIFIER_CLASSES, ROMANIAN_CLASSES)
                         send_alert_to_telegram(TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, alert_images, alert_caption)
                     else:
