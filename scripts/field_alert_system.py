@@ -1,8 +1,10 @@
 import yaml
 import time
 from datetime import datetime
+import schedule
 from megadetector.detection import run_detector
 import pandas as pd
+import functools
 
 # Adjust the path as needed to point to the directory containing alert_system_utils.py
 import sys
@@ -22,8 +24,9 @@ from alert_system_utils import (
     send_alert_to_telegram,
     save_images,
     annotate_images,
-    get_romanian_class
+    send_weekly_report
 )
+
 
 # Load settings from configuration file
 with open('../config.yaml') as file:
@@ -32,8 +35,15 @@ with open('../config.yaml') as file:
 IMAP_HOST = config['imap_config']['host']
 EMAIL_USER = config['imap_config']['user']
 EMAIL_PASS = config['imap_config']['password']
+
 TELEGRAM_BOT_TOKEN = config['telegram_config']['bot_token']
-TELEGRAM_CHAT_ID = config['telegram_config']['chat_id']  # '-1002249589791' # config['telegram_config']['chat_id']  #  replace with config after tests # 
+TELEGRAM_CHAT_ID =  '-1002249589791' # config['telegram_config']['chat_id']  #  replace with config after tests # 
+
+SMTP_SERVER = config['smtp_config']['host']
+EMAIL_SENDER = config['smtp_config']['user']
+EMAIL_PASSWORD = config['smtp_config']['password']
+RECIPIENTS = config['smtp_config']['recipients']
+SMTP_PORT = 587
 
 # Detection and Classification Model Settings
 DETECTOR_MODEL_PATH = '../models/md_v5a.0.0.pt'
@@ -76,6 +86,9 @@ classifier_model = classifier(CLASSIFIER_MODEL_PATH, BACKBONE, CLASSIFIER_CLASSE
 end_time = time.time()
 print(f"Loaded classifier in {(end_time - start_time):.2f} seconds")
 
+schedule.every().monday.at("08:00").do(
+    functools.partial(send_weekly_report, SMTP_SERVER, EMAIL_SENDER, EMAIL_PASSWORD, SMTP_PORT, CAPTURE_DATABASE_PATH, CAMERA_LOCATIONS_PATH, RECIPIENTS, EMAIL_USER)
+)
 
 if __name__ == "__main__":
     print(f"\n{current_time()} | Monitoring {EMAIL_USER} for new messages...")
@@ -92,7 +105,12 @@ if __name__ == "__main__":
                     df = batch_classification(df, classifier_model, images, CLASSIFICATION_THRESHOLD)
                     if detections_in_sequence(df, images):
                         df, alert_caption = generate_alert_caption(df, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END, len(images), SPECIES_OF_INTEREST, EMAIL_USER, ALERT_LANGUAGE, CLASSIFIER_CLASSES, ROMANIAN_CLASSES)
+                        
+                        ### DELETE ME ####
+                        human_warning = False
+                        
                         alert_images = annotate_images(df, images, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END, ALERT_LANGUAGE, CLASSIFIER_CLASSES, ROMANIAN_CLASSES)
+
                         send_alert_to_telegram(TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, alert_images, alert_caption)
                     else:
                         print(f"{current_time()} | All photos in sequence are empty")
@@ -105,6 +123,7 @@ if __name__ == "__main__":
                 print(f"\n{current_time()} | Monitoring {EMAIL_USER} for new messages...")
             else:
                 time.sleep(CHECK_EMAIL_FREQUENCY)
+            schedule.run_pending()
         except KeyboardInterrupt:
             print(f"{current_time()} | Interrupted by user")
             break
@@ -114,3 +133,10 @@ if __name__ == "__main__":
             time.sleep(CHECK_EMAIL_FREQUENCY)
             print(f"\n{current_time()} | Monitoring {EMAIL_USER} for new messages...")
             continue
+
+
+
+# TO DO: Keep an ERROR LOG
+# TO DO: delete emails older than 48 hours
+# TO DO: Delete human images saved on disk older than 48 hours
+# TO DO: Daily Report, including camera status
