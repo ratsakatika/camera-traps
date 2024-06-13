@@ -741,7 +741,7 @@ def generate_alert_caption(df, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END
 
         alert_caption += f"\n\n🕔 Ora: {img_time}"
         alert_caption += f"\n🌍 Toponim: {location}"
-        alert_caption += f"\n📍 <a href='{map_url}'>Arata pe harta</a>"
+        alert_caption += f"\n📍 <a href='{map_url}'>Arată pe hartă</a>"
 
         if human_warning:
             alert_caption += f"\n\n<i>Nu distribuiți poze cu oameni în afara organizației. Pentru a proteja intimitatea, sistemul de alertă nu trimite poze cu oameni între orele {HUMAN_ALERT_START} și {HUMAN_ALERT_END}. Persoanele autorizate pot verifica pozele cu oameni la adresa {EMAIL_USER}.</i>"
@@ -758,7 +758,7 @@ def generate_alert_caption(df, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END
         alert_caption += f"\nCameră: {camera_id}"
         alert_caption += f"; Marcă: {camera_make}"
         alert_caption += f"; Baterie: {battery}%"
-        alert_caption += f"; Spatiu pe card: {sd_memory}%"
+        alert_caption += f"; Spațiu pe card: {sd_memory}%"
         if pd.notna(temperature):
             alert_caption += f"; Temperatură: {temperature}℃"
         alert_caption += f"; GPS: {gps}"

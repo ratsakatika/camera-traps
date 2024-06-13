@@ -51,7 +51,7 @@ CLASSIFIER_CLASSES = [
 ]
 ROMANIAN_CLASSES = [
     "Bursuc", "Ibex", "Cerb", "Capră Neagră", "Pisică", 
-    "Capră", "Caprior(ară)", "Câine", "Veveriță", "Cal", "Genetă",
+    "Capră", "Caprioară", "Câine", "Veveriță", "Cal", "Genetă",
     "Arici", "Lagomorf", "Lup", "Râs", "Marmotă", 
     "Micromamifer", "Muflon", "Oaie", "Mustelid", "Pasăre", 
     "Urs", "Nutrie", "Vulpe", "Mistreț", "Vacă"
