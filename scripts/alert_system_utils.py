@@ -1062,3 +1062,53 @@ def get_detected_word(count, gender):
         return "Detectați" if gender in ["m", "n"] else "Detectate"
     else:
         return "Detectat" if gender in ["m", "n"] else "Detectată"
+
+
+
+import smtplib
+import os
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email.mime.text import MIMEText
+from email import encoders
+from datetime import datetime
+import pandas as pd
+import time
+
+def send_weekly_report(SMTP_SERVER, EMAIL_SENDER, EMAIL_PASSWORD, SMTP_PORT, CAPTURE_DATABASE_PATH, CAMERA_LOCATIONS_PATH, RECIPIENTS, EMAIL_USER):
+    subject = "Camera Trap Alert System: Weekly Report"
+    body = "Good morning,\n\nPlease see attached the latest versions of:\n\n(1) The alert system capture database.\n(2) The camera trap status log.\n\nWeekly reports are sent every Monday at 08:00.\n\nBest regards,\n\nFCC Camera Trap Automatic Alert System"
+
+    attachments = [CAPTURE_DATABASE_PATH, CAMERA_LOCATIONS_PATH]
+
+    msg = MIMEMultipart()
+    msg['From'] = EMAIL_SENDER
+    msg['To'] = ", ".join(RECIPIENTS)
+    msg['Subject'] = subject
+
+    msg.attach(MIMEText(body, 'plain'))
+
+    for file_path in attachments:
+        attachment = MIMEBase('application', 'octet-stream')
+        try:
+            with open(file_path, 'rb') as file:
+                attachment.set_payload(file.read())
+            encoders.encode_base64(attachment)
+            attachment.add_header('Content-Disposition', f'attachment; filename={os.path.basename(file_path)}')
+            msg.attach(attachment)
+        except Exception as e:
+            print(f"\n{current_time()} | Error attaching file to weekly report {file_path}: {e}")
+
+    try:
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+            server.starttls()
+            server.login(EMAIL_SENDER, EMAIL_PASSWORD)
+            server.send_message(msg)
+            print(f"\n{current_time()} | Weekly report email sent successfully.")
+            print(f"\n{current_time()} | Monitoring {EMAIL_USER} for new messages...")
+    except Exception as e:
+        print(f"\n{current_time()} | Failed to send weekly report email: {e}")
+        print(f"\n{current_time()} | Monitoring {EMAIL_USER} for new messages...")
+
+
+
