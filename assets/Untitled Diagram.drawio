@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2024-06-15T16:07:04.920Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36" etag="3YlOeQI4EoouEaadJWhc" version="24.5.4" type="github">
+<mxfile host="app.diagrams.net" modified="2024-06-15T16:11:27.841Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36" etag="8T8g5FRjzCAG3LjxHxFB" version="24.5.4" type="github">
   <diagram id="C5RBs43oDa-KdzZeNtuy" name="Page-1">
     <mxGraphModel dx="1434" dy="874" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -125,12 +125,13 @@
         <mxCell id="tPt-htg6_U2yKYADihuf-45" value="Any&lt;br&gt;human or vehicle&lt;br&gt;detections?" style="rhombus;whiteSpace=wrap;html=1;shadow=0;fontFamily=Helvetica;fontSize=12;align=center;strokeWidth=1;spacing=6;spacingTop=-4;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
           <mxGeometry x="200" y="560" width="120" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="tPt-htg6_U2yKYADihuf-57" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="tPt-htg6_U2yKYADihuf-46">
+        <mxCell id="tPt-htg6_U2yKYADihuf-57" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="tPt-htg6_U2yKYADihuf-46">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="260" y="780" as="targetPoint" />
+            <mxPoint x="680" y="720" as="sourcePoint" />
             <Array as="points">
-              <mxPoint x="580" y="780" />
-              <mxPoint x="260" y="780" />
+              <mxPoint x="680" y="720" />
+              <mxPoint x="680" y="780" />
             </Array>
           </mxGeometry>
         </mxCell>
