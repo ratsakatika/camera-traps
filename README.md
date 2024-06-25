@@ -36,13 +36,13 @@ Get started by following the 10 steps below. If anything doesn't make sense, fol
 3. Create a dedicated email account to receive camera trap photos and generate an app password. Your email provider **must** support app passwords (e.g. [Gmail](https://myaccount.google.com/apppasswords)).
 4. Set up your 4G-enabled camera trap to send photos to this dedicated email address.
 5. Create a group in Telegram and note down the [chat ID](https://www.wikihow.com/Know-Chat-ID-on-Telegram-on-Android) (it should start with '#-100').
-6. Create a bot in Telegram using @BotFather and note down the bot token ([detailed instructions here](https://core.telegram.org/bots/tutorial)).
+6. Create a bot in Telegram using @BotFather and note down the bot token ([detailed instructions here](https://core.telegram.org/bots/tutorial)). Add the bot to your Telegram group and make it an admin.
 7. Update the config.yaml file with your email account settings and Telegram chat ID and bot token.
 8. Update the [camera locations](data/camera_locations.csv) CSV file with your camera(s) details, location and a google maps link.
 9. Verify that the settings in the the [alert system script](scripts/advanced_alert_system.py) meet your requirements.
 10. Activate the virtual environment and run the alert system script: `python3 python3 scripts/advanced_alert_system.py`
 
-The script will check the email account every 60 seconds for any unread emails, download any attached photos, detect and classify any animals, humans or vehicles in the photos, and send an alert your Telegram Group. It will then update the [capture database](data/capture_database.csv) and save the original photos in the [photos folder](data/photos). A high level process flow diagramme can be found [here](assets/final_alert_system_flow_diagram.png).
+The script will check the email account every 60 seconds (default) for unread emails, download any photos attached or embedded, detect and classify animals, humans or vehicles, and send an alert your Telegram Group. It will then update the [capture database](data/capture_database.csv) and save the original photos in the [photos folder](data/photos). A high level process flow diagramme can be found [here](assets/final_alert_system_flow_diagram.png).
 
 ### Example Tutorial
 
