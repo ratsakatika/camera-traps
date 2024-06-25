@@ -42,7 +42,7 @@ Get started by following the 10 steps below. If anything doesn't make sense, fol
 9. Verify that the settings in the the [alert system script](scripts/advanced_alert_system.py) meet your requirements.
 10. Activate the virtual environment and run the alert system script: `python3 python3 scripts/advanced_alert_system.py`
 
-Now, every photo 
+The script will check the email account every 60 seconds for any unread emails, download any attached photos, detect and classify any animals, humans or vehicles in the photos, and send an alert your Telegram Group. It will then update the [capture database](data/capture_database.csv) and save the original photos in the [photos folder](data/photos). A high level process flow diagramme can be found [here](assets/final_alert_system_flow_diagram.png).
 
 ### Example Tutorial
 
