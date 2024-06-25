@@ -1,7 +1,7 @@
 # 🐗🦊 AI for Wildlife Monitoring 🐻🦡
 ### A Real-Time Alert System Using 4G Camera Traps
 
-**<a Thomas Ratsakatika | AI and Environment Researcher | University of Cambridge**
+**Thomas Ratsakatika | AI and Environment Researcher | University of Cambridge**
 
 This software was developed in partnership with <a href="https://www.carpathia.org/" target="_blank">Fundația Conservation Carpathia</a> in Romania.
 
@@ -46,7 +46,7 @@ Get started by following the 11 steps below. If anything doesn't make sense, fol
 
 The script will check the email account every 60 seconds for unread emails, download any photos, detect and classify animals, and send an alert your Telegram Group. It will then update the [capture database](data/capture_database.csv) and save the original photos in the [photos folder](data/photos). A high level process flow diagramme can be found [here](assets/final_alert_system_flow_diagram.png).
 
-You can also find code for processing camera trap data, and testing and fine tuning AI models in the [archive](archive) folder. These notebooks are experimental and while they contain comments, are no detailed tutorials. [Contact me](#📨-contact) if you have any queries.
+You can also find code for processing camera trap data, and testing and fine tuning AI models in the [archive](archive) folder. These notebooks are experimental and while they contain comments, are no detailed tutorials. [Contact me](#-contact) if you have any queries.
 
 ### 🎓 Example Tutorial
 
@@ -206,13 +206,17 @@ The MegaDetector model's license can be <a href="https://github.com/agentmorris/
 
 I would like to extend my sincere thanks to <a href="https://www.cst.cam.ac.uk/people/sk818" target="_blank">Professor Srinivasan Keshav</a> and <a href="https://www.researchgate.net/profile/Ruben-Iosif" target="_blank">Dr. Ruben Iosif</a> for their invaluable insights and expertise while developing this software. I would also like to thank Fundația Conservation Carpathia's Wildlife and Rapid Intervention Team, who hosted me in Romania, deployed the camera traps, and provided valuable feedback during the system's development.
 
-<table>
-  <tr align="center">
-    <td align="center">
-      <img src="assets/logo_cambridge_colour.jpg" alt="University of Cambridge" width="300" />
-    </td>
-    <td align="center">
-      <img src="assets/logo_ukri_colour.png" alt="UKRI Logo" width="300" />
-    </td>
-  </tr>
-</table>
+This software was built as part of the UKRI-funded [Artificial Intelligence for Environmental Risk](https://ai4er-cdt.esc.cam.ac.uk/) Centre for Doctoral Training at the University Cambridge.
+
+<div style="display: flex; justify-content: center;">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="assets/logo_cambridge_colour.jpg" alt="University of Cambridge" width="300" />
+      </td>
+      <td align="center">
+        <img src="assets/logo_ukri_colour.png" alt="UKRI Logo" width="300" />
+      </td>
+    </tr>
+  </table>
+</div>
