@@ -212,10 +212,10 @@ This software was built as part of the UKRI-funded [Artificial Intelligence for 
   <table>
     <tr>
       <td align="center">
-        <img src="assets/logo_cambridge_colour.jpg" alt="University of Cambridge" width="300" />
+        <img src="assets/logo_cambridge_colour.jpg" alt="University of Cambridge" width="600" />
       </td>
       <td align="center">
-        <img src="assets/logo_ukri_colour.png" alt="UKRI Logo" width="300" />
+        <img src="assets/logo_ukri_colour.png" alt="UKRI Logo" width="600" />
       </td>
     </tr>
   </table>
