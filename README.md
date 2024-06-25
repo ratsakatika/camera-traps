@@ -3,23 +3,19 @@
 
 Thomas Ratsakatika | AI and Environment Researcher | University of Cambridge
 
-<table style="border-collapse: collapse; border: none;">
-  <tr align="center" style="border: none;">
-    <td align="center" style="border: none;">
-      <img src="assets/screenshot.png" alt="University of Cambridge" width="200" />
-    </td>
-    <td align="center" style="border: none;">
-      <img src="assets/example_detections.gif" alt="UKRI Logo" width="550" />
-    </td>
-  </tr>
-</table>
+<div style="text-align: center;">
+  <img src="assets/example_detections.gif" alt="Annotated Photos"/>
+  <p>Photo credits: <a href="https://www.carpathia.org/">Fundația Conservation Carpathia</a> ©</p>
+</div>
 
-
-Photo credits: [Fundația Conservation Carpathia](https://www.carpathia.org/) ©
 
 ## 🐻 Overview 🐗
 
-A project to detect bears and wild boar in camera traps located in the Romanian Carpathian Mountains
+
+
+<div style="text-align: center;">
+    <img src="assets/screenshot.png" alt="Example Alert" width="300" />
+</div>
 
 ## 🚀 Get Started
 
