@@ -66,10 +66,27 @@ def detector(df, model, images, DETECTION_THRESHOLD):
 
 class classifier:
     """Image classifier for animal species."""
-    def __init__(self, model_path_classifier, backbone, animal_classes, device='cpu'):
+    def __init__(self, CLASSIFIER_MODEL_PATH, backbone, animal_classes, device='cpu'):
         self.model = timm.create_model(backbone, pretrained=False, num_classes=len(animal_classes), dynamic_img_size=True)
-        state_dict = torch.load(model_path_classifier, map_location=torch.device(device))['state_dict']
-        self.model.load_state_dict({k.replace('base_model.', ''): v for k, v in state_dict.items()})
+
+        state_dict = torch.load(CLASSIFIER_MODEL_PATH, map_location=device)
+
+        # Handle the case where the state_dict key exists
+        if 'state_dict' in state_dict:
+            state_dict = state_dict['state_dict']
+
+        # Remove 'base_model.' prefix if it exists
+        if any(k.startswith('base_model.') for k in state_dict.keys()):
+            state_dict = {k.replace('base_model.', ''): v for k, v in state_dict.items()}
+        
+        # Remove 'model.' prefix if it exists
+        if any(k.startswith('model.') for k in state_dict.keys()):
+            state_dict = {k.replace('model.', ''): v for k, v in state_dict.items()}
+
+        # Load the state dictionary into the model
+        self.model.load_state_dict(state_dict)
+        print(f"{current_time()} | Model state dictionary loaded successfully.")
+
         self.transforms = transforms.Compose([
             transforms.Resize((182, 182), interpolation=InterpolationMode.BICUBIC),
             transforms.ToTensor(),
