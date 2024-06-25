@@ -5,11 +5,12 @@
 
 ## 💡 Overview 
 
-This repository contains the code required to deploy an automated wildlife alert system using photos sent from 4G camera traps. To get started, all you need is at lest one 4G-enabled camera trap, a dedicated email address, a Telegram account and some basic python skills. However, if you don't have a 4G camera trap, you can still test out the system using in the [Quick Start Tutorial Notebook](notebooks/alert_system_tutorial.ipynb).
+This repository contains the code required to deploy an automated wildlife alert system using photos sent from 4G camera traps. To get started, all you need is at lest one 4G-enabled camera trap, a dedicated email address, a Telegram account and some basic python skills. However, if you don't have a 4G camera trap, you can still test out the system using the [Tutorial Notebook](#-get-started) section below.
 
-<img src="assets/example_detections.gif" alt="Annotated Photos"/>
-
-Photo credits: [Fundația Conservation Carpathia](https://www.carpathia.org/) ©
+<div style="text-align: center;">
+  <img src="assets/example_detections.gif" alt="Annotated Photos"/>
+  <p>Photo credits: <a href="https://www.carpathia.org/">Fundația Conservation Carpathia</a> ©</p>
+</div>
 
 ## 📣  Example alert message
 
@@ -17,8 +18,9 @@ Photo credits: [Fundația Conservation Carpathia](https://www.carpathia.org/) ©
 
 ## 🚀 Get Started
 
-- Exampl notebook
+- Example notebook
 - Script
+
 
 
 ## 📂 Project Structure
