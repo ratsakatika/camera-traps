@@ -3,14 +3,17 @@
 
 Thomas Ratsakatika | AI and Environment Researcher | University of Cambridge
 
-<div style="display: flex; justify-content: center; align-items: center; gap: 20px;">
-  <div style="text-align: center;">
-    <img src="assets/screenshot.png" alt="Example Alert" style="height: 400px;">
-  </div>
-  <div style="text-align: center;">
-    <img src="assets/example_detections.gif" alt="Example Detection" style="height: 400px;">
-  </div>
-</div>
+<table style="border-collapse: collapse; border: none;">
+  <tr align="center" style="border: none;">
+    <td align="center" style="border: none;">
+      <img src="assets/screenshot.png" alt="University of Cambridge" width="150" />
+    </td>
+    <td align="center" style="border: none;">
+      <img src="assets/example_detections.gif" alt="UKRI Logo" width="450" />
+    </td>
+  </tr>
+</table>
+
 
 Photo credits: [Fundația Conservation Carpathia](https://www.carpathia.org/) ©
 
