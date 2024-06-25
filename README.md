@@ -3,15 +3,17 @@
 
 **Tom Ratsakatika | AI and Environment Researcher | University of Cambridge**
 
-<i>**Read the [LICENSE](#-license) and [DISCLAIMER](#-disclaimer) before use**</i>
+<i>**Read the [LICENSE](#-license) and [DISCLAIMER](#-disclaimer) before use.**</i>
 
 ## 💡 Overview 
 
-This repository contains code to run an wildlife alert system on your personal computer.
+This repository contains code to run an wildlife alert system on your computer.
 
 The system will process photos sent from a 4G-enabled camera trap and send alerts directly to your mobile phone.
 
-To get started, you will need at lest one 4G-enabled camera trap, a dedicated email address, a Telegram account and some basic python skills. If you don't have all of these, you can still test out the system in the [Example Tutorial](#example-tutorial).
+To get started, you will need at lest one 4G-enabled camera trap, a dedicated email address, a Telegram account and some basic python skills.
+
+If you don't have all of these, you can still test out the system in the [Example Tutorial](#example-tutorial).
 
 <div style="text-align: center;">
   <img src="assets/example_detections.gif" alt="Annotated Photos"/>
@@ -26,7 +28,7 @@ To get started, you will need at lest one 4G-enabled camera trap, a dedicated em
 
 ### Quick Start (Advanced Users)
 
-Follow these steps to get started. If any steps don't make sense, follow the more detailed instructions below.
+Get started by following the 10 steps below. If anything doesn't make sense, follow the more detailed [Example Tutorial](#example-tutorial).
 
 1. Clone the repository
 2. Download the [detection and classification models](#-models).
@@ -36,7 +38,11 @@ Follow these steps to get started. If any steps don't make sense, follow the mor
 5. Create a group in Telegram and note down the [chat ID](https://www.wikihow.com/Know-Chat-ID-on-Telegram-on-Android) (it should start with '#-100').
 6. Create a bot in Telegram using @BotFather and note down the bot token ([detailed instructions here](https://core.telegram.org/bots/tutorial)).
 7. Update the config.yaml file with your email account settings and Telegram chat ID and bot token.
-8. Update
+8. Update the [camera locations](data/camera_locations.csv) CSV file with your camera(s) details, location and a google maps link.
+9. Verify that the settings in the the [alert system script](scripts/advanced_alert_system.py) meet your requirements.
+10. Activate the virtual environment and run the alert system script: `python3 python3 scripts/advanced_alert_system.py`
+
+Now, every photo 
 
 ### Example Tutorial
 
