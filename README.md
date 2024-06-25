@@ -1,7 +1,7 @@
 # 🐗🦊 AI for Wildlife Monitoring 🐻🦡
 ### A Real-Time Alert System Using 4G Camera Traps
 
-**<a href="https://www.linkedin.com/in/tomratsakatika/" target="_blank">Tom Ratsakatika</a> | AI and Environment Researcher | University of Cambridge**
+**<a Thomas Ratsakatika | AI and Environment Researcher | University of Cambridge**
 
 This software was developed in partnership with <a href="https://www.carpathia.org/" target="_blank">Fundația Conservation Carpathia</a> in Romania.
 
@@ -46,6 +46,8 @@ Get started by following the 11 steps below. If anything doesn't make sense, fol
 
 The script will check the email account every 60 seconds for unread emails, download any photos, detect and classify animals, and send an alert your Telegram Group. It will then update the [capture database](data/capture_database.csv) and save the original photos in the [photos folder](data/photos). A high level process flow diagramme can be found [here](assets/final_alert_system_flow_diagram.png).
 
+You can also find code for processing camera trap data, and testing and fine tuning AI models in the [archive](archive) folder. These notebooks are experimental and while they contain comments, are no detailed tutorials. [Contact me](#📨-contact) if you have any queries.
+
 ### 🎓 Example Tutorial
 
 To run the [Example Tutorial Notebook](notebooks/alert_system_tutorial.ipynb), you will need to be able to run <a href="https://www.python.org/downloads/" target="_blank">Python</a> in a <a href="https://docs.jupyter.org/en/latest/start/index.html#id1" target="_blank">Jupyter Notebook</a>.
@@ -61,7 +63,7 @@ Once you are set up with Jupyter, you will need to copy the alert system code re
 
 VS Code also provides tools to "clone" (copy) a repository. You can also simply download everything as a zip file by clicking on the green code button at the top of this page.
 
-Now you will need to create a "virtual environment" and install all the modules needed to run the alert system. Open a new terminal (within VS Code or your operating system), navigate to the camera-traps folder (`cd camera-traps`), and create a virtual environment with the required modules using pip (recommended) or conda (<a href="https://docs.anaconda.com/miniconda/#" target="_blank">download here</a>):
+Now you will need to create a ["virtual environment"](https://docs.python.org/3/library/venv.html) and install all the modules needed to run the alert system. Open a new terminal (within VS Code or your operating system), navigate to the camera-traps folder (`cd camera-traps`), and create a virtual environment with the required modules using pip (recommended) or conda (<a href="https://docs.anaconda.com/miniconda/#" target="_blank">download here</a>):
 
   - Using pip (Windows):
     ```bash
@@ -84,25 +86,6 @@ Now you will need to create a "virtual environment" and install all the modules 
     ```
 
  You are now ready to open and run the [Example Tutorial Notebook](notebooks/alert_system_tutorial.ipynb).
-
-## 📂 Project Structure
-
-```
-.
-├── archive          # Directory for analysis, fine-tuning and testing notebooks
-├── assets           # Directory for images and other media
-├── data             # Directory for storing data
-│   ├── photos       # Subdirectory for photos received
-│   ├── examples     # Subdirectory of example photos
-├── models           # Directory for storing the AI models
-├── notebooks        # Directory for the example tutorial notebook
-├── scripts          # Directory for alert system scripts
-├── environment.yml  # Conda environment configuration file
-├── requirements.txt # Pip environment configuration file
-├── LICENSE          # License file for the repository
-└── README.md        # Readme file with project overview and instructions
-
-```
 
 ## 🤖 Models
 
@@ -128,6 +111,25 @@ If you are using the alert system in the Carpathian Mountains or would like to b
 Some example photos are provided in [data/example_photos](data/example_photos) to get you started.
 
 You could also investigate <a href="https://lila.science/" target="_blank">LILA BC</a> and <a href="https://www.wildlifeinsights.org/" target="_blank">WildLife Insights</a> if you want to download large camera trap datasets to train your own model using the notebooks provided in the [archive](archive) folder.
+
+## 📂 Project Structure
+
+```
+.
+├── archive          # Directory for analysis, fine-tuning and testing notebooks
+├── assets           # Directory for images and other media
+├── data             # Directory for storing data
+│   ├── photos       # Subdirectory for photos received
+│   ├── examples     # Subdirectory of example photos
+├── models           # Directory for storing the AI models
+├── notebooks        # Directory for the example tutorial notebook
+├── scripts          # Directory for alert system scripts
+├── environment.yml  # Conda environment configuration file
+├── requirements.txt # Pip environment configuration file
+├── LICENSE          # License file for the repository
+└── README.md        # Readme file with project overview and instructions
+
+```
  
 ## 📨 Contact
 
