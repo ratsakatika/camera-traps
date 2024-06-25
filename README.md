@@ -89,7 +89,7 @@ Now you will need to create a ["virtual environment"](https://docs.python.org/3/
 
 ## 🤖 Models
 
-<i>**Important:** users must agree to the respective license terms of third-party models.</i> Once downloaded, these models should be moved to [models](models) directory.
+**Important:** Users must agree to the respective license terms of third-party models. Once downloaded, these models should be moved to [models](models) directory.
 
 The **advanced version** of the alert system uses the <a href="https://github.com/agentmorris/MegaDetector?tab=readme-ov-file" target="_blank">MegaDetector</a> object detection model and <a href="https://www.deepfaune.cnrs.fr/en/" target="_blank">DeepFaune</a> species classification model:
 
