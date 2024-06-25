@@ -33,7 +33,7 @@ If you don't have these - or you just want to test the system on your laptop - r
 Get started by following the 11 steps below. If anything doesn't make sense, follow the more detailed [Example Tutorial](#-example-tutorial) below.
 
 1. Clone the repository.
-2. Download the [detection and classification models](#-models).
+2. Download the [detection and classification models](#-models) and move them to the [models](models) directory.
 3. Create the camera traps virtual environment with pip (requirement.txt - recommended) or conda (environment.yaml).
 4. Create a dedicated email account to receive the 4G camera trap photos and generate an app password. Your email provider **must** support app passwords (e.g. <a href="https://myaccount.google.com/apppasswords" target="_blank">Gmail</a>).
 5. Set up your 4G camera trap to send photos to this dedicated email address.
@@ -89,7 +89,7 @@ Now you will need to create a ["virtual environment"](https://docs.python.org/3/
 
 ## 🤖 Models
 
-<i>**Important:** users must agree to the respective license terms of third-party models.</i>
+<i>**Important:** users must agree to the respective license terms of third-party models.</i> Once downloaded, these models should be moved to [models](models) directory.
 
 The **advanced version** of the alert system uses the <a href="https://github.com/agentmorris/MegaDetector?tab=readme-ov-file" target="_blank">MegaDetector</a> object detection model and <a href="https://www.deepfaune.cnrs.fr/en/" target="_blank">DeepFaune</a> species classification model:
 
