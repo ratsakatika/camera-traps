@@ -3,9 +3,9 @@
 
 **Thomas Ratsakatika | AI and Environment Researcher | University of Cambridge**
 
-This software was developed in partnership with <a href="https://www.carpathia.org/" target="_blank">Fundația Conservation Carpathia</a> in Romania.
+This software was developed in partnership with <a href="https://www.carpathia.org/" target="_blank">Fundația Conservation Carpathia</a>, a nature conservation and restoration organisation based in the Romania.
 
-<i>**Read the [LICENSE](#-license) and [DISCLAIMER](#-disclaimer) before use.**</i>
+<i>Read the [LICENSE](#-license) and [DISCLAIMER](#-disclaimer) before use.</i>
 
 ## 💡 Overview 
 
@@ -204,7 +204,7 @@ The MegaDetector model's license can be <a href="https://github.com/agentmorris/
 
 ## 🙏 Acknowledgements
 
-I would like to extend my sincere thanks to <a href="https://www.cst.cam.ac.uk/people/sk818" target="_blank">Professor Srinivasan Keshav</a> and <a href="https://www.researchgate.net/profile/Ruben-Iosif" target="_blank">Dr. Ruben Iosif</a> for their invaluable insights and expertise while developing this software. I would also like to thank Fundația Conservation Carpathia's Wildlife and Rapid Intervention Team, who hosted me in Romania, deployed the camera traps, and provided valuable feedback during the system's development.
+I would like to extend my sincere thanks to <a href="https://www.cst.cam.ac.uk/people/sk818" target="_blank">Professor Srinivasan Keshav</a> and <a href="https://www.researchgate.net/profile/Ruben-Iosif" target="_blank">Dr Ruben Iosif</a> for their invaluable insights and expertise while developing this software. I would also like to thank Fundația Conservation Carpathia's Wildlife and Rapid Intervention Team, who hosted me in Romania, deployed the camera traps, and provided valuable feedback during the system's development.
 
 This software was built as part of the UKRI-funded [Artificial Intelligence for Environmental Risk](https://ai4er-cdt.esc.cam.ac.uk/) Centre for Doctoral Training at the University Cambridge.
 
