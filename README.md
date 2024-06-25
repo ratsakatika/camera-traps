@@ -9,7 +9,7 @@ Thomas Ratsakatika | AI and Environment Researcher | University of Cambridge
       <img src="assets/screenshot.png" alt="University of Cambridge" width="200" />
     </td>
     <td align="center" style="border: none;">
-      <img src="assets/example_detections.gif" alt="UKRI Logo" width="600" />
+      <img src="assets/example_detections.gif" alt="UKRI Logo" width="550" />
     </td>
   </tr>
 </table>
