@@ -1,9 +1,9 @@
-# 🐻 AI for Wildlife Monitoring 🐗
+# 🐗🦊 AI for Wildlife Monitoring 🐻🦡
 ### A Real-Time Alert System Using 4G Camera Traps
 
-**[Tom Ratsakatika](https://www.linkedin.com/in/tomratsakatika/) | AI and Environment Researcher | University of Cambridge**
+**<a href="https://www.linkedin.com/in/tomratsakatika/" target="_blank">Tom Ratsakatika</a> | AI and Environment Researcher | University of Cambridge**
 
-This software was developed in partnership with <a href="https://www.carpathia.org/">Fundația Conservation Carpathia</a>.
+This software was developed in partnership with <a href="https://www.carpathia.org/" target="_blank">Fundația Conservation Carpathia</a> in Romania.
 
 <i>**Read the [LICENSE](#-license) and [DISCLAIMER](#-disclaimer) before use.**</i>
 
@@ -15,11 +15,11 @@ The system will process photos sent from a 4G-enabled camera trap and send alert
 
 To get started, you will need at lest one 4G-enabled camera trap, a dedicated email address, a Telegram account and some basic python skills.
 
-If you don't have all of these - or you just want to test the system on your device - run the [Example Tutorial](#-example-tutorial).
+If you don't have these - or you just want to test the system on your laptop - run the [Example Tutorial](#-example-tutorial).
 
 <div style="text-align: center;">
   <img src="assets/example_detections.gif" alt="Annotated Photos"/>
-  <p>© Photos credit: <a href="https://www.carpathia.org/">Fundația Conservation Carpathia</a> </p>
+  <p>© Photos credit: <a href="https://www.carpathia.org/" target="_blank">Fundația Conservation Carpathia</a> </p>
 </div>
 
 ## 📣  Example alert message
@@ -35,10 +35,10 @@ Get started by following the 11 steps below. If anything doesn't make sense, fol
 1. Clone the repository.
 2. Download the [detection and classification models](#-models).
 3. Create the camera traps virtual environment with pip (requirement.txt - recommended) or conda (environment.yaml).
-4. Create a dedicated email account to receive the 4G camera trap photos and generate an app password. Your email provider **must** support app passwords (e.g. [Gmail](https://myaccount.google.com/apppasswords)).
+4. Create a dedicated email account to receive the 4G camera trap photos and generate an app password. Your email provider **must** support app passwords (e.g. <a href="https://myaccount.google.com/apppasswords" target="_blank">Gmail</a>).
 5. Set up your 4G camera trap to send photos to this dedicated email address.
-6. Create a group in Telegram and note down the [chat ID](https://www.wikihow.com/Know-Chat-ID-on-Telegram-on-Android) (it should start with '#-100').
-7. Create a bot in Telegram using @BotFather and note down the bot token ([detailed instructions here](https://core.telegram.org/bots/tutorial)). Add the bot to your Telegram group and make it an admin.
+6. Create a group in Telegram and note down the <a href="https://www.wikihow.com/Know-Chat-ID-on-Telegram-on-Android" target="_blank">chat ID</a> (it should start with '#-100').
+7. Create a bot in Telegram using @BotFather and note down the bot token (<a href="https://core.telegram.org/bots/tutorial" target="_blank">detailed instructions here</a>). Add the bot to your Telegram group and make it an admin.
 8. Update the config.yaml file with your email account settings and Telegram chat ID and bot token.
 9. Update the [camera locations](data/camera_locations.csv) CSV file with your camera(s) details, location and a google maps link.
 10. Verify that the settings in the the [alert system script](scripts/advanced_alert_system.py) meet your requirements.
@@ -48,9 +48,10 @@ The script will check the email account every 60 seconds for unread emails, down
 
 ### 🎓 Example Tutorial
 
-To run the [Example Tutorial Notebook](notebooks/alert_system_tutorial.ipynb), you will need to be able to run [Python](https://www.python.org/downloads/) in a [Jupyter Notebook](https://docs.jupyter.org/en/latest/start/index.html#id1).
+To run the [Example Tutorial Notebook](notebooks/alert_system_tutorial.ipynb), you will need to be able to run <a href="https://www.python.org/downloads/" target="_blank">Python</a> in a <a href="https://docs.jupyter.org/en/latest/start/index.html#id1" target="_blank">Jupyter Notebook</a>.
 
-There are many tutorials on how to do this online. One option is to download [VS Code](https://code.visualstudio.com/) and add the Python and Jupyter extensions.
+There are many tutorials on how to do this online. One option is to download <a href="https://code.visualstudio.com/" target="_blank">VS Code</a> and add the Python and Jupyter extensions.
+
 
 Once you are set up with Jupyter, you will need to copy the alert system code repository onto your computer. If you know how to use Git, the command is:
 
@@ -60,7 +61,7 @@ Once you are set up with Jupyter, you will need to copy the alert system code re
 
 VS Code also provides tools to "clone" (copy) a repository. You can also simply download everything as a zip file by clicking on the green code button at the top of this page.
 
-Now you will need to create a "virtual environment" and install all the modules needed to run the alert system. Open a new terminal (within VS Code or your operating system), navigate to the camera-traps folder (`cd camera-traps`), and create a virtual environment with the required modules using pip (recommended) or conda ([download here](https://docs.anaconda.com/miniconda/#)):
+Now you will need to create a "virtual environment" and install all the modules needed to run the alert system. Open a new terminal (within VS Code or your operating system), navigate to the camera-traps folder (`cd camera-traps`), and create a virtual environment with the required modules using pip (recommended) or conda (<a href="https://docs.anaconda.com/miniconda/#" target="_blank">download here</a>):
 
   - Using pip (Windows):
     ```bash
@@ -107,30 +108,30 @@ Now you will need to create a "virtual environment" and install all the modules 
 
 <i>**Important:** users must agree to the respective license terms of third-party models.</i>
 
-The **advanced version** of the alert system uses the [MegaDetector](https://github.com/agentmorris/MegaDetector?tab=readme-ov-file) object detection model and [DeepFaune](https://www.deepfaune.cnrs.fr/en/) species classification model:
+The **advanced version** of the alert system uses the <a href="https://github.com/agentmorris/MegaDetector?tab=readme-ov-file" target="_blank">MegaDetector</a> object detection model and <a href="https://www.deepfaune.cnrs.fr/en/" target="_blank">DeepFaune</a> species classification model:
 
-- MegaDetector Detection Model: [md_v5a.0.0.pt](https://github.com/agentmorris/MegaDetector/releases/tag/v5.0)
-- DeepFaune Classifier Model: [deepfaune-vit_large_patch14_dinov2.lvd142m.pt](https://pbil.univ-lyon1.fr/software/download/deepfaune/v1.1/)
+- MegaDetector Detection Model: <a href="https://github.com/agentmorris/MegaDetector/releases/tag/v5.0" target="_blank">md_v5a.0.0.pt</a>
+- DeepFaune Classifier Model: <a href="https://pbil.univ-lyon1.fr/software/download/deepfaune/v1.1/" target="_blank">deepfaune-vit_large_patch14_dinov2.lvd142m.pt</a>
 
 The **basic version** uses DeepFaune's object detection and species classification models:
 
-- DeepFaune Detection Model: [deepfaune-yolov8s_960.pt](https://pbil.univ-lyon1.fr/software/download/deepfaune/v1.1/)
-- DeepFaune Classifier Model: [deepfaune-vit_large_patch14_dinov2.lvd142m.pt](https://pbil.univ-lyon1.fr/software/download/deepfaune/v1.1/)
+- DeepFaune Detection Model: <a href="https://pbil.univ-lyon1.fr/software/download/deepfaune/v1.1/" target="_blank">deepfaune-yolov8s_960.pt</a>
+- DeepFaune Classifier Model: <a href="https://pbil.univ-lyon1.fr/software/download/deepfaune/v1.1/" target="_blank">deepfaune-vit_large_patch14_dinov2.lvd142m.pt</a>
 
-If you are using the alert system in the Carpathian mountains or would like to bias classification performance towards wild boar and bears, you may also wish to try the fine-tuned DeepFaune model. Further details can be found in the accompanying Research Report [COMING SOON].
+If you are using the alert system in the Carpathian Mountains or would like to bias classification performance towards wild boar and bears, you may also wish to try the fine-tuned DeepFaune model. Further details can be found in the accompanying Research Report [COMING SOON].
 
 - Carpathian Mountain Model: [fine-tuned-deepfaune-balanced-loss.pt](https://drive.google.com/file/d/1Y0P7Z4DX1s7Sj3v7LjbeZNkMC4wByKPi/view?usp=sharing)
 - Carpathian Mountain Model (biased to bears and wild boars): [fine-tuned-deepfaune-biased-loss.pt](https://drive.google.com/file/d/1Co5UuHwNKCPfCW3KTZ9M_42HzvS4IpzV/view?usp=sharing)
 
 ## 📷 Data
 
-Some example photos are stored in [data/example_photos](data/example_photos) to get you started.
+Some example photos are provided in [data/example_photos](data/example_photos) to get you started.
 
-You could also investigate [LILA BC](https://lila.science/) and [WildLife Insights](https://www.wildlifeinsights.org/) if you want to download large camera trap datasets to train your own model, using the notebooks provided in the [archive](archive) folder.
+You could also investigate <a href="https://lila.science/" target="_blank">LILA BC</a> and <a href="https://www.wildlifeinsights.org/" target="_blank">WildLife Insights</a> if you want to download large camera trap datasets to train your own model using the notebooks provided in the [archive](archive) folder.
  
-## 📧 Contact
+## 📨 Contact
 
-For any questions, please contact [Tom Ratsakatika](mailto:trr26@cam.ac.uk).
+For questions or more information, please contact [Tom Ratsakatika](mailto:trr26@cam.ac.uk).
 
 ## 📖 Citation
 
@@ -187,11 +188,13 @@ For any questions, please contact [Tom Ratsakatika](mailto:trr26@cam.ac.uk).
 
 ## 📜 License
 
-The alert system software is released under the MIT LICENSE. Further details can be [found here](LICENSE).
+The alert system code is released under the MIT license. Further details can be [found here](LICENSE).
 
-The Carpathian Mountain models is released under the Creative Commons non-Commerial CC BY-NC-SA 4.0 License. Further Details can be [found here](https://creativecommons.org/licenses/by-nc-sa/4.0/). 
+The Carpathian Mountain models are released under the Creative Commons non-Commercial CC BY-NC-SA 4.0 License. Further details can be <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">found here</a>.
 
-The DeepFaune models' license can be [found here](https://plmlab.math.cnrs.fr/deepfaune/software/-/tree/master). Commercial use of DeepFaune's model and code is forbidden.
+The DeepFaune models' license can be <a href="https://plmlab.math.cnrs.fr/deepfaune/software/-/tree/master" target="_blank">found here</a>. Commercial use of the DeepFaune models is forbidden.
+
+The MegaDetector model's license can be <a href="https://github.com/agentmorris/MegaDetector?tab=readme-ov-file" target="_blank">found here</a>.
 
 ## ❗ Disclaimer
 
@@ -199,8 +202,7 @@ The DeepFaune models' license can be [found here](https://plmlab.math.cnrs.fr/de
 
 ## 🙏 Acknowledgements
 
-
-https://www.deepfaune.cnrs.fr/en/
+I would like to extend my sincere thanks to <a href="https://www.cst.cam.ac.uk/people/sk818" target="_blank">Professor Srinivasan Keshav</a> and <a href="https://www.researchgate.net/profile/Ruben-Iosif" target="_blank">Dr. Ruben Iosif</a> for their invaluable insights and expertise while developing this software. I would also like to thank Fundația Conservation Carpathia's Wildlife and Rapid Intervention Team, who hosted me in Romania, deployed the camera traps, and provided valuable feedback during the system's development.
 
 <table>
   <tr align="center">
