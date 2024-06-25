@@ -3,7 +3,7 @@
 
 **Tom Ratsakatika | AI and Environment Researcher | University of Cambridge**
 
-<i>**Read the [LICENSE](-license) and [DISCLAIMER](-disclaimer) before use**</i>
+<i>**Read the [LICENSE](#-license) and [DISCLAIMER](#-disclaimer) before use**</i>
 
 ## 💡 Overview 
 
