@@ -1,9 +1,9 @@
 # 🐻 AI for Wildlife Monitoring 🐗
 ### A Real-Time Alert System Using 4G Camera Traps
 
-Tom Ratsakatika | AI and Environment Researcher | University of Cambridge
+**Tom Ratsakatika | AI and Environment Researcher | University of Cambridge**
 
-*Read the [LICENSE](License) and [DISCLAIMER](Disclaimer) before use.*
+<i>**Read the [LICENSE](License) and [DISCLAIMER](Disclaimer) before use**</i>
 
 ## 💡 Overview 
 
