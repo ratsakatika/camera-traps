@@ -101,7 +101,7 @@ The **basic version** uses DeepFaune's object detection and species classificati
 - DeepFaune Detection Model: <a href="https://pbil.univ-lyon1.fr/software/download/deepfaune/v1.1/" target="_blank">deepfaune-yolov8s_960.pt</a>
 - DeepFaune Classifier Model: <a href="https://pbil.univ-lyon1.fr/software/download/deepfaune/v1.1/" target="_blank">deepfaune-vit_large_patch14_dinov2.lvd142m.pt</a>
 
-If you are using the alert system in the Carpathian Mountains or would like to bias classification performance towards wild boar and bears, you may also wish to try the fine-tuned DeepFaune model. Further details can be found in the accompanying Research Report [COMING SOON].
+If you are using the alert system in the Carpathian Mountains or would like to bias classification performance towards wild boar and bears, you may also wish to try the fine-tuned DeepFaune classification model, which works alongside MegaDetector. Further details can be found in the accompanying Research Report [COMING SOON].
 
 - Carpathian Mountain Model: [fine-tuned-deepfaune-balanced-loss.pt](https://drive.google.com/file/d/1Y0P7Z4DX1s7Sj3v7LjbeZNkMC4wByKPi/view?usp=sharing)
 - Carpathian Mountain Model (biased to bears and wild boars): [fine-tuned-deepfaune-biased-loss.pt](https://drive.google.com/file/d/1Co5UuHwNKCPfCW3KTZ9M_42HzvS4IpzV/view?usp=sharing)
