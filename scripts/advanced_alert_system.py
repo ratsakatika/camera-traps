@@ -136,10 +136,3 @@ if __name__ == "__main__":
             time.sleep(CHECK_EMAIL_FREQUENCY)
             print(f"\n{current_time()} | Monitoring {EMAIL_USER} for new messages...")
             continue
-
-
-
-# TO DO: Keep an ERROR LOG
-# TO DO: delete emails older than 48 hours
-# TO DO: Delete human images saved on disk older than 48 hours
-# TO DO: Daily Report, including camera status

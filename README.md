@@ -13,7 +13,7 @@ This repository contains code to run an wildlife alert system on your laptop, PC
 
 The system will process photos sent from a 4G-enabled camera trap and send alerts directly to your mobile phone.
 
-To get started, you will need at lest one 4G-enabled camera trap, a dedicated email address, a Telegram account and some basic python skills.
+To get started, you will need at least one 4G-enabled camera trap, a dedicated email address, a Telegram account and some basic python skills.
 
 If you don't have these - or you just want to test the system on your laptop - run the [Example Tutorial](#-example-tutorial).
 
@@ -26,23 +26,25 @@ If you don't have these - or you just want to test the system on your laptop - r
 
 <img src="assets/screenshot.png" alt="Example Alert" width="400" />
 
-## 🛠️ Get Started
+## 🛠️ Setup
+
+<i>Beta warning: this alert system is still in development and may result in unexpected behaviour. Also note that third-party functionality (e.g. email 'app passwords') may change at any time, resulting in the system not working. As more testing is done, future updates will aim to make the system more robust.</i>
 
 ### 🚀 Quick Start (Advanced Users)
 
-Get started by following the 11 steps below. If anything doesn't make sense, follow the more detailed [Example Tutorial](#-example-tutorial) below.
+Get started by following the steps below. If anything doesn't make sense, follow the more detailed [Example Tutorial](#-example-tutorial).
 
 1. Clone the repository.
 2. Download the [detection and classification models](#-models) and move them to the [models](models) directory.
 3. Create the camera traps virtual environment with pip (requirement.txt - recommended) or conda (environment.yaml).
 4. Create a dedicated email account to receive the 4G camera trap photos and generate an app password. Your email provider **must** support app passwords (e.g. <a href="https://myaccount.google.com/apppasswords" target="_blank">Gmail</a>).
 5. Set up your 4G camera trap to send photos to this dedicated email address.
-6. Create a group in Telegram and note down the <a href="https://www.wikihow.com/Know-Chat-ID-on-Telegram-on-Android" target="_blank">chat ID</a> (it should start with '#-100').
-7. Create a bot in Telegram using @BotFather and note down the bot token (<a href="https://core.telegram.org/bots/tutorial" target="_blank">detailed instructions here</a>). Add the bot to your Telegram group and make it an admin.
+6. Create a bot in Telegram using @BotFather and note down the bot token (<a href="https://core.telegram.org/bots/tutorial" target="_blank">detailed instructions here</a>).
+7. Create a group in Telegram, add the bot to the group and make it an admin. Then note down the group's <a href="https://www.wikihow.com/Know-Chat-ID-on-Telegram-on-Android" target="_blank">chat ID</a> (do this AFTER adding the bot - the chat ID should start with '#-100')
 8. Update the config.yaml file with your email account settings and Telegram chat ID and bot token.
 9. Update the [camera locations](data/camera_locations.csv) CSV file with your camera(s) details, location and a google maps link.
 10. Verify that the settings in the the [alert system script](scripts/advanced_alert_system.py) meet your requirements.
-11. Activate the virtual environment and run the alert system script: `python3 python3 scripts/advanced_alert_system.py`
+11. Activate the virtual environment and run the alert system script: `python3 scripts/advanced_alert_system.py`
 
 The script will check the email account every 60 seconds for unread emails, download any photos, detect and classify animals, and send an alert your Telegram Group. It will then update the [capture database](data/capture_database.csv) and save the original photos in the [photos folder](data/photos). A high level process flow diagramme can be found [here](assets/final_alert_system_flow_diagram.png).
 
@@ -61,7 +63,7 @@ Once you are set up with Jupyter, you will need to copy the alert system code re
    git clone https://github.com/ratsakatika/camera-traps.git
    ```
 
-VS Code also provides tools to "clone" (copy) a repository. You can also simply download everything as a zip file by clicking on the green code button at the top of this page.
+VS Code also provides tools to "clone" (copy) a repository. You can alternatively download everything as a zip file by clicking on the green 'code' button at the top of this page.
 
 Now you will need to create a ["virtual environment"](https://docs.python.org/3/library/venv.html) and install all the modules needed to run the alert system. Open a new terminal (within VS Code or your operating system), navigate to the camera-traps folder (`cd camera-traps`), and create a virtual environment with the required modules using pip (recommended) or conda (<a href="https://docs.anaconda.com/miniconda/#" target="_blank">download here</a>):
 
