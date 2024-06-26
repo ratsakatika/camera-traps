@@ -130,9 +130,9 @@ You could also investigate <a href="https://lila.science/" target="_blank">LILA 
 ├── models              # Directory for storing the AI models
 ├── notebooks           # Directory for the example tutorial notebook
 ├── scripts             # Directory for alert system scripts
+├── analysis_env.yml    # A complex Conda environment for the archive notebooks
 ├── environment.yml     # Conda environment configuration file
-├── training_env.yml    # A more complex Conda environment for the analysis and fine-tuning notebooks
-├── requirements.txt    # Pip environment configuration file
+├── requirements.txt    # Pip environment configuration file (recommended)
 ├── LICENSE             # License file for the repository
 └── README.md           # Readme file with project overview and instructions
 

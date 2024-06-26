@@ -1,4 +1,4 @@
-name: camera_traps_training
+name: camera_traps_analysis
 channels:
   - nvidia
   - pytorch
@@ -23,6 +23,8 @@ dependencies:
   - pandas
   - pyyaml
   - ipython
+  - ipywidgets
+  - schedule
   - pip
   - pip:
     - megadetector
