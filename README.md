@@ -121,8 +121,8 @@ You could also investigate <a href="https://lila.science/" target="_blank">LILA 
 ├── archive             # Directory for analysis, fine-tuning and testing notebooks
 ├── assets              # Directory for images and other media
 ├── data                # Directory for storing data
-│   ├── photos          # Subdirectory for photos received
 │   ├── example_photos  # Subdirectory of example photos
+│   └── photos          # Subdirectory for storing photos received
 ├── models              # Directory for storing the AI models
 ├── notebooks           # Directory for the example tutorial notebook
 ├── scripts             # Directory for alert system scripts
