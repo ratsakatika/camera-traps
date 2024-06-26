@@ -36,7 +36,6 @@ MODEL_PATH_CLASSIFIER = '../models/deepfaune-vit_large_patch14_dinov2.lvd142m.pt
 ANIMAL_CLASSES = ["badger", "ibex", "red deer", "chamois", "cat", "goat", "roe deer", "dog", "squirrel", "equid", "genet",
                   "hedgehog", "lagomorph", "wolf", "lynx", "marmot", "micromammal", "mouflon",
                   "sheep", "mustelid", "bird", "bear", "nutria", "fox", "wild boar", "cow"]
-# YOLO_CLASSES = ["animal", "human", "vehicle", "empty"]
 
 class Detector:
     def __init__(self):

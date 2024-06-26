@@ -4,6 +4,7 @@ data/detector_tests
 data/classification_tests
 data/manual_labelling
 data/field_tests
+data/photos
 
 scrips/__pycache__
 
