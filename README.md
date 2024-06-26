@@ -9,7 +9,7 @@ This software was developed in partnership with <a href="https://www.carpathia.o
 
 ## 💡 Overview 
 
-This repository contains code to run an wildlife alert system on your laptop, PC or server. You can even run the basic version on a Raspberry Pi 4B (4GB RAM minimum).
+This repository contains code to run an wildlife alert system on your laptop, PC or server. You can even run the basic version on a [Raspberry Pi 4B](https://www.raspberrypi.com/products/raspberry-pi-4-model-b/) (requires 4GB RAM minimum).
 
 The system will process photos sent from a 4G-enabled camera trap and send alerts directly to your mobile phone.
 
@@ -208,7 +208,7 @@ The MegaDetector model's license can be <a href="https://github.com/agentmorris/
 
 I would like to extend my sincere thanks to <a href="https://www.cst.cam.ac.uk/people/sk818" target="_blank">Professor Srinivasan Keshav</a> and <a href="https://www.researchgate.net/profile/Ruben-Iosif" target="_blank">Dr Ruben Iosif</a> for their invaluable insights and expertise while developing this software. I would also like to thank Fundația Conservation Carpathia's Wildlife and Rapid Intervention Team, who hosted me in Romania, deployed the camera traps, and provided valuable feedback during the system's development.
 
-This software was built as part of the UKRI-funded [Artificial Intelligence for Environmental Risk](https://ai4er-cdt.esc.cam.ac.uk/) Centre for Doctoral Training at the University Cambridge.
+This software was built as part of the UKRI-funded [Artificial Intelligence for Environmental Risk](https://ai4er-cdt.esc.cam.ac.uk/) Centre for Doctoral Training programme at the University Cambridge.
 
 <div style="display: flex; justify-content: center;">
   <table>
