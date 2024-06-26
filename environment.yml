@@ -1,28 +1,13 @@
-name: camera_traps
+name: camera_traps_conda
 channels:
-  - nvidia
-  - pytorch
+  - defaults
   - conda-forge
 dependencies:
-  - python=3.11.5
-  - ipympl
-  - matplotlib
-  - numpy
-  - tqdm
+  - python=3.11
   - ipykernel
-  - timm
-  - pytorch-cuda=12.1
-  - cudatoolkit
-  - torchvision
-  - torchaudio
-  - opencv
-  - openpyxl
-  - pillow
-  - scikit-learn
-  - requests
-  - pandas
-  - pyyaml
-  - ipython
+  - ipywidgets
+  - schedule
   - pip
   - pip:
     - megadetector
+    - timm

@@ -1,3 +1,5 @@
 megadetector
-pillow
+ipykernel
 ipywidgets
+schedule
+timm

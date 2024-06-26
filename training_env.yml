@@ -1,0 +1,28 @@
+name: camera_traps_training
+channels:
+  - nvidia
+  - pytorch
+  - conda-forge
+dependencies:
+  - python=3.11.5
+  - ipympl
+  - matplotlib
+  - numpy
+  - tqdm
+  - ipykernel
+  - timm
+  - pytorch-cuda=12.1
+  - cudatoolkit
+  - torchvision
+  - torchaudio
+  - opencv
+  - openpyxl
+  - pillow
+  - scikit-learn
+  - requests
+  - pandas
+  - pyyaml
+  - ipython
+  - pip
+  - pip:
+    - megadetector
