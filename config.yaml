@@ -1,0 +1,17 @@
+imap_config:
+  host: 'YOUR_IMAP_SERVER_NAME'
+  user: 'YOUR_DEDICATED_EMAIL_ADDRESS'
+  password: 'YOUR_APP_PASSWORD'
+
+telegram_config:
+  bot_token: 'YOUR_BOT_TOKEN'
+  chat_id: 'YOUR_CHAT_ID'
+
+smtp_config:
+  host: 'YOUR_SMTP_SERVER_NAME'
+  port: 'YOUR_SMTP_SERVER_PORT'
+  user: 'YOUR_DEDICATED_EMAIL_ADDRESS'
+  password: 'YOUR_APP_PASSWORD'
+  recipients:
+    - 'RECIPIENT_EMAIL_ADDRESS_1'
+    - 'RECIPIENT_EMAIL_ADDRESS_2'
