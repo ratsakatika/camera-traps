@@ -13,20 +13,50 @@ from PIL import Image
 import ast
 from IPython.display import display
 from megadetector.visualization import visualization_utils as vis_utils
+from collections import Counter
 
 def set_device():
+    """
+    Determine and return the best device to run the model on.
+
+    Returns:
+        - (str): 'cuda' if a GPU is available, otherwise 'cpu'.
+    """
     return 'cuda' if torch.cuda.is_available() else 'cpu'
 
 def image_to_bytes(image):
-    """Convert an image to bytes."""
+    """
+    Convert an image to bytes.
+
+    Parameters:
+        - image: The input image to be converted to bytes.
+
+    Returns:
+        - (BytesIO): The image converted to bytes in JPEG format.
+    """
     byte_arr = io.BytesIO()
     image.save(byte_arr, format='JPEG')
     byte_arr.seek(0)
     return byte_arr
 
 def detector(df, model, images, DETECTION_THRESHOLD):
-    """Run the MegaDetector on images and return detections above the threshold."""
-    
+    """
+    Runs MegaDetector on a list of images and updates a dataframe with detection results.
+
+    Parameters:
+        - df (dataframe): The dataframe to be updated with detection results.
+        - model (object): The MegaDetector model used for generating detections.
+        - images (list): A list of images to be processed.
+        - DETECTION_THRESHOLD (float): The confidence threshold above which detections are considered valid.
+
+    Returns:
+        - df (dataframe): The updated dataframe with detection results, including detection boxes, classes, confidences, and counts of detected animals, humans, and vehicles.
+        - human_warning (bool): A flag indicating whether any humans or vehicles were detected (True if detected, False otherwise).
+
+    Raises:
+        - ValueError: If the dataframe does not have enough rows to update for the given number of images.
+    """
+
     human_warning = False
     num_images = len(images)
     
@@ -65,7 +95,22 @@ def detector(df, model, images, DETECTION_THRESHOLD):
 
 
 class classifier:
-    """Image classifier for animal species."""
+    """
+    A classifier for predicting the species of animals in images.
+
+    Parameters:
+        - CLASSIFIER_MODEL_PATH (str): The path to the pre-trained classifier model file.
+        - backbone (str): The name of the model architecture to be used as the backbone.
+        - animal_classes (list): A list of animal class names that the model can predict.
+        - device (str, optional): The device to run the model on ('cpu' or 'cuda'). Default is 'cpu'.
+
+    Methods:
+        - predict(image): Predict the species of an animal in the given image.
+
+    Example:
+        classifier_instance = classifier(CLASSIFIER_MODEL_PATH, BACKBONE, animal_classes, device='cuda')
+        prediction, probability = classifier_instance.predict(image)
+    """
     def __init__(self, CLASSIFIER_MODEL_PATH, backbone, animal_classes, device='cpu'):
         self.model = timm.create_model(backbone, pretrained=False, num_classes=len(animal_classes), dynamic_img_size=True)
 
@@ -96,7 +141,16 @@ class classifier:
         self.animal_classes = animal_classes
 
     def predict(self, image):
-        """Predict the species of an animal in the image."""
+        """
+        Predict the species of an animal in the image.
+
+        Parameters:
+            - image: The input image to be classified.
+
+        Returns:
+            - (str): The predicted animal class.
+            - (float): The confidence of the prediction.
+        """
         img_tensor = self.transforms(image).unsqueeze(0)
         with torch.no_grad():
             output = self.model(img_tensor)
@@ -104,9 +158,20 @@ class classifier:
             top_p, top_class = probabilities.topk(1, dim=1)
             return self.animal_classes[top_class.item()], top_p.item()
 
-from collections import Counter
 
 def batch_classification(df, classifier_model, images, CLASSIFICATION_THRESHOLD):
+    """
+    Performs batch classification on a list of images and update the dataframe with species information.
+
+    Parameters:
+        - df (dataframe): The dataframe to be updated with classification results.
+        - classifier_model (object): The classifier model used for predicting species.
+        - images (list): A list of images to be processed.
+        - CLASSIFICATION_THRESHOLD (float): The confidence threshold above which species predictions are considered valid.
+
+    Returns:
+        - df (dataframe): The updated dataframe with classification results, including species classes, confidences, primary species, and counts of wild boar and bear.
+    """
     num_images = len(images)
     df_length = len(df)
 
@@ -217,11 +282,25 @@ def batch_classification(df, classifier_model, images, CLASSIFICATION_THRESHOLD)
 
     return df
 
+def detections_in_sequence(df, images):
+    """
+    Check if there are any human or vehicle detections, or if the primary species is not empty in the last sequence of images.
 
-#################################################
-######## CHECK EMAILS AND EXTRACT DATA ##########
-#################################################
+    Parameters:
+        - df (dataframe): The dataframe containing detection data.
+        - images (list): A list of images in the sequence.
 
+    Returns:
+        - (bool): True if any human or vehicle detections are present, or if the primary species is not empty. False otherwise.
+    """
+    last_rows = df.iloc[-len(images):]
+    human_or_vehicle_present = (last_rows['Human Count'] > 0).any() or (last_rows['Vehicle Count'] > 0).any()
+    primary_species_not_empty = (last_rows['Primary Species'] != "Empty").any()
+    return human_or_vehicle_present or primary_species_not_empty
+
+##################################################################
+######## CHECK EMAILS, EXTRACT DATA, SEND WEEKLY REPORT ##########
+##################################################################
 
 import imaplib
 import email
@@ -233,7 +312,24 @@ from email.utils import parsedate_to_datetime
 from PIL.ExifTags import TAGS
 
 def check_emails(IMAP_HOST, EMAIL_USER, EMAIL_PASS):
-    """Check emails for new messages with images and extract metadata."""
+    """
+    Check emails for new messages with images and extract metadata.
+
+    Parameters:
+        - IMAP_HOST (str): The IMAP host address for the email server.
+        - EMAIL_USER (str): The email address to log in.
+        - EMAIL_PASS (str): The password for the email address.
+
+    Returns:
+        - images (list): A list of extracted images.
+        - original_images (list): A list of copies of the original images.
+        - camera_id (str): The ID of the camera extracted from the email.
+        - temp_deg_c (float): The temperature in degrees Celsius extracted from the email.
+        - img_date (str): The date extracted from the image or email.
+        - img_time (str): The time extracted from the image or email.
+        - battery (str): The battery level extracted from the email.
+        - sd_memory (str): The free space on the SD card extracted from the email.
+    """
     images = []
     original_images = []
     camera_id = None
@@ -275,7 +371,15 @@ def check_emails(IMAP_HOST, EMAIL_USER, EMAIL_PASS):
 
 
 def get_email_body(msg):
-    """Extract the body from an email message."""
+    """
+    Extract the body from an email message.
+
+    Parameters:
+        - msg (email.message.EmailMessage): The email message object.
+
+    Returns:
+        - body (str): The extracted body of the email as a string.
+    """
     body = ""
     if msg.is_multipart():
         for part in msg.walk():
@@ -295,7 +399,15 @@ def get_email_body(msg):
 
 
 def extract_images_from_email(msg):
-    """Extract images from an email message."""
+    """
+    Extract images from an email message.
+
+    Parameters:
+        - msg (email.message.EmailMessage): The email message object.
+
+    Returns:
+        - image_list (list): A list of extracted images.
+    """
     image_list = []
     if msg.is_multipart():
         for part in msg.walk():
@@ -317,7 +429,15 @@ def extract_images_from_email(msg):
 
 
 def download_image_from_url(url):
-    """Download an image from a URL."""
+    """
+    Download an image from a URL.
+
+    Parameters:
+        - url (str): The URL of the image to download.
+
+    Returns:
+        - (Image or None): The downloaded image if successful, otherwise None.
+    """
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -328,7 +448,16 @@ def download_image_from_url(url):
 
 
 def extract_camera_id(subject, body):
-    # Extract camera ID from subject
+    """
+    Extract the camera ID from the email subject or body.
+
+    Parameters:
+        - subject (str): The subject of the email.
+        - body (str): The body of the email.
+
+    Returns:
+        - camera_id (str): The extracted camera ID.
+    """
     camera_id = "Unknown"
 
     if subject and '_' in subject:
@@ -343,6 +472,17 @@ def extract_camera_id(subject, body):
 
 
 def extract_date_time_from_image(image):
+    """
+    Extract the date and time from the EXIF data of an image.
+
+    Parameters:
+        - image (PIL.Image): The image from which to extract the date and time.
+
+    Returns:
+        - (tuple): A tuple containing:
+            - date (str): The extracted date in 'YYYY-MM-DD' format, or None if extraction fails.
+            - time (str): The extracted time in 'HH:MM:SS' format, or None if extraction fails.
+    """
     try:
         exif_data = image._getexif()
         if exif_data:
@@ -358,6 +498,15 @@ def extract_date_time_from_image(image):
 
 
 def extract_date(body):
+    """
+    Extract the date from the email body using predefined patterns.
+
+    Parameters:
+        - body (str): The body of the email.
+
+    Returns:
+        - date (str or None): The extracted date in 'YYYY-MM-DD' format, or None if no valid date is found.
+    """
     date_patterns = [
         r"Date:(\d{2}\.\d{2}\.\d{4})",      # Pattern for "Date:31.05.2024"
         r"Date:(\d{2}/\d{2}/\d{4})",        # Pattern for "Date:30/05/2024"
@@ -379,6 +528,15 @@ def extract_date(body):
 
 
 def extract_time(body):
+    """
+    Extract the time from the email body using patterns found in UOVISION and WILSUS cameras.
+
+    Parameters:
+        - body (str): The body of the email.
+
+    Returns:
+        - time (str or None): The extracted time in 'HH:MM:SS' format, or None if no valid time is found.
+    """
     time_patterns = [
         r"Time:(\d{2}:\d{2}:\d{2})",        # Pattern for "Time:17:08:02"
         r"Date:(?:\d{2}/\d{2}/\d{4})\s+(\d{2}:\d{2}:\d{2})", # Pattern for "Date:30/05/2024  17:02:06"
@@ -392,6 +550,15 @@ def extract_time(body):
 
 
 def extract_temperature(body):
+    """
+    Extract the temperature from the email body using UOVISION and WILSUS patterns.
+
+    Parameters:
+        - body (str): The body of the email.
+
+    Returns:
+        - temperature (int or None): The extracted temperature in degrees Celsius, or None if no valid temperature is found.
+    """
     temp_patterns = [
         r"Temperature:(\d+)℃",             # Pattern for "Temperature:21℃"
         r"Temp:(\d+)\s*Celsius\s*Degree",  # Pattern for "Temp:19 Celsius Degree"
@@ -406,6 +573,15 @@ def extract_temperature(body):
 
 
 def extract_sd_free_space(body):
+    """
+    Extract the SD card free space percentage from the email body using UOVISION and WILSUS patterns.
+
+    Parameters:
+        - body (str): The body of the email.
+
+    Returns:
+        - sd_free_space (int or None): The percentage of free space on the SD card, or None if no valid information is found.
+    """
     sd_patterns = [
         r"SD card free space:\s*([\d\.]+)GB of ([\d\.]+)GB",  # Pattern for "SD card free space: 14.7GB of 14.8GB"
         r"SD:(\d+)M/(\d+)M"                                  # Pattern for "SD:15115M/15189M"
@@ -421,6 +597,15 @@ def extract_sd_free_space(body):
 
 
 def extract_battery(body):
+    """
+    Extract the battery level from the email body using UOVISION and WILSUS patterns.
+
+    Parameters:
+        - body (str): The body of the email.
+
+    Returns:
+        - battery_level (int or None): The extracted battery level as a percentage, or None if no valid information is found.
+    """
     battery_patterns = [
         r"Battery:(\d+)%",  # Pattern for "Battery:100%"
     ]
@@ -432,6 +617,69 @@ def extract_battery(body):
     return None
 
 
+import smtplib
+import os
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email.mime.text import MIMEText
+from email import encoders
+from datetime import datetime
+import pandas as pd
+import time
+
+def send_weekly_report(SMTP_SERVER, EMAIL_SENDER, EMAIL_PASSWORD, SMTP_PORT, CAPTURE_DATABASE_PATH, CAMERA_LOCATIONS_PATH, RECIPIENTS, EMAIL_USER):
+    """
+    Send a weekly report email with attached files.
+
+    Parameters:
+        - SMTP_SERVER (str): The SMTP server address.
+        - EMAIL_SENDER (str): The sender's email address.
+        - EMAIL_PASSWORD (str): The password for the sender's email account.
+        - SMTP_PORT (int): The port number for the SMTP server.
+        - CAPTURE_DATABASE_PATH (str): The path to the capture database file to be attached.
+        - CAMERA_LOCATIONS_PATH (str): The path to the camera locations file to be attached.
+        - RECIPIENTS (list): A list of recipient email addresses.
+        - EMAIL_USER (str): The email address used for monitoring.
+
+    Returns:
+        - None
+    """
+    subject = "Camera Trap Alert System: Weekly Report"
+    body = "Good morning,\n\nPlease see attached the latest versions of:\n\n(1) The alert system capture database.\n(2) The camera trap status log.\n\nWeekly reports are sent every Monday at 08:00.\n\nBest regards,\n\nFCC Camera Trap Automatic Alert System"
+
+    attachments = [CAPTURE_DATABASE_PATH, CAMERA_LOCATIONS_PATH]
+
+    msg = MIMEMultipart()
+    msg['From'] = EMAIL_SENDER
+    msg['To'] = ", ".join(RECIPIENTS)
+    msg['Subject'] = subject
+
+    msg.attach(MIMEText(body, 'plain'))
+
+    for file_path in attachments:
+        attachment = MIMEBase('application', 'octet-stream')
+        try:
+            with open(file_path, 'rb') as file:
+                attachment.set_payload(file.read())
+            encoders.encode_base64(attachment)
+            attachment.add_header('Content-Disposition', f'attachment; filename={os.path.basename(file_path)}')
+            msg.attach(attachment)
+        except Exception as e:
+            print(f"\n{current_time()} | Error attaching file to weekly report {file_path}: {e}")
+
+    try:
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+            server.starttls()
+            server.login(EMAIL_SENDER, EMAIL_PASSWORD)
+            server.send_message(msg)
+            print(f"\n{current_time()} | Weekly report email sent successfully.")
+            print(f"\n{current_time()} | Monitoring {EMAIL_USER} for new messages...")
+    except Exception as e:
+        print(f"\n{current_time()} | Failed to send weekly report email: {e}")
+        print(f"\n{current_time()} | Monitoring {EMAIL_USER} for new messages...")
+
+
+
 ##############################################################################
 ######## EXTRACT CAMERA LOCATIONS AND UPDATE BATTERY/STORAGE STATUS ##########
 ##############################################################################
@@ -440,6 +688,24 @@ def extract_battery(body):
 import pandas as pd
 
 def extract_and_update_camera_info(CAMERA_LOCATIONS_PATH, camera_id, battery=None, sd_memory=None):
+    """
+    Extract and update camera information based on the given camera ID.
+
+    Parameters:
+        - CAMERA_LOCATIONS_PATH (str): The path to the CSV file containing camera information.
+        - camera_id (str): The ID of the camera to be looked up.
+        - battery (int, optional): The battery level to update, if provided.
+        - sd_memory (int, optional): The SD memory percentage to update, if provided.
+
+    Returns:
+        - camera_make (str or None): The make of the camera, or None if no camera is found.
+        - gps (str or None): The GPS coordinates of the camera, or None if no camera is found.
+        - location (str or None): The location of the camera, or None if no camera is found.
+        - map_url (str or None): The Google Maps link of the camera location, or None if no camera is found.
+        - battery (int or None): The battery level of the camera, or None if no camera is found or updated.
+        - sd_memory (int or None): The SD memory percentage of the camera, or None if no camera is found or updated.
+    """
+
     # Read the CSV file
     df = pd.read_csv(CAMERA_LOCATIONS_PATH)
 
@@ -476,7 +742,26 @@ def extract_and_update_camera_info(CAMERA_LOCATIONS_PATH, camera_id, battery=Non
 
 
 def update_camera_data_dataframe(df, images_count, camera_id, camera_make, img_date, img_time, temp_deg_c, battery, sd_memory, location, gps, map_url):
-    
+    """
+    Update the camera data dataframe with new image metadata and camera information.
+
+    Parameters:
+        - df (dataframe): The existing dataframe to update.
+        - images_count (int): The number of images being added.
+        - camera_id (str): The ID of the camera.
+        - camera_make (str): The make of the camera.
+        - img_date (str): The date the images were taken.
+        - img_time (str): The time the images were taken.
+        - temp_deg_c (float or str): The temperature in degrees Celsius.
+        - battery (int or str): The battery level of the camera.
+        - sd_memory (int or str): The SD memory percentage of the camera.
+        - location (str): The location of the camera.
+        - gps (str): The GPS coordinates of the camera.
+        - map_url (str): The Google Maps link of the camera location.
+
+    Returns:
+        - df (dataframe): The updated dataframe with the new image metadata and camera information.
+    """
     if camera_make == None:
         camera_id = "Unknown"
         camera_make = "Unknown"
@@ -532,9 +817,7 @@ def update_camera_data_dataframe(df, images_count, camera_id, camera_make, img_d
     
     return df
 
-def current_time():
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    return now
+
 
 
 ##############################################################################
@@ -546,8 +829,25 @@ from collections import Counter
 import pandas as pd
 
 def generate_alert_caption(df, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END, num_images, SPECIES_OF_INTEREST, EMAIL_USER, ALERT_LANGUAGE, CLASSIFIER_CLASSES, ROMANIAN_CLASSES):
-    
-    
+    """
+    Generate an alert caption based on the detection data in the dataframe.
+
+    Parameters:
+        - df (dataframe): The dataframe containing detection data.
+        - human_warning (bool): Flag indicating if humans or vehicles were detected.
+        - HUMAN_ALERT_START (str): The start time for human alerts.
+        - HUMAN_ALERT_END (str): The end time for human alerts.
+        - num_images (int): The number of images in the sequence.
+        - SPECIES_OF_INTEREST (list): List of species that trigger priority alerts.
+        - EMAIL_USER (str): The email address to contact for authorized users.
+        - ALERT_LANGUAGE (str): The language for the alert ('en' or 'ro').
+        - CLASSIFIER_CLASSES (list): List of classifier classes.
+        - ROMANIAN_CLASSES (list): List of Romanian translations for classifier classes.
+
+    Returns:
+        - df (dataframe): The updated dataframe with the alert message.
+        - alert_caption (str): The generated alert caption.
+    """
     alert_caption = ""
     sequence_primary_species = None
 
@@ -792,7 +1092,22 @@ import io
 from IPython.display import display
 
 def annotate_images(df, images, human_warning, HUMAN_ALERT_START, HUMAN_ALERT_END, ALERT_LANGUAGE, CLASSIFIER_CLASSES, ROMANIAN_CLASSES):
-    
+    """
+    Annotate images with bounding boxes, if human_warning = False.
+
+    Parameters:
+        - df (dataframe): The dataframe containing detection data.
+        - images (list): A list of images to be annotated.
+        - human_warning (bool): Flag indicating if humans or vehicles were detected.
+        - HUMAN_ALERT_START (str): The start time for human alerts.
+        - HUMAN_ALERT_END (str): The end time for human alerts.
+        - ALERT_LANGUAGE (str): The language for the alert ('en' or 'ro').
+        - CLASSIFIER_CLASSES (list): List of classifier classes.
+        - ROMANIAN_CLASSES (list): List of Romanian translations for classifier classes.
+
+    Returns:
+        - image_list (list or None): A list of annotated images, or None if human_warning = True.
+    """    
     if human_warning:
 
         current_time_in_romania = get_current_time_in_romania()
@@ -891,6 +1206,22 @@ import time
 from requests.exceptions import ConnectionError, HTTPError
 
 def send_alert_to_telegram(bot_token, chat_id, photos, caption):
+    """
+    Send an alert with photos and a caption to the Telegram group.
+
+    Parameters:
+        - bot_token (str): The bot token for authenticating with the Telegram API.
+        - chat_id (str): The ID of the chat to send the alert to.
+        - photos (list): A list of photos to be sent. If None or empty, only the caption will be sent.
+        - caption (str): The caption to be included with the photos.
+
+    Returns:
+        - None
+
+    Raises:
+        - Exception: If the maximum number of retries is reached when sending the request.
+        - ValueError: If any file to be sent is empty.
+    """
     def prepare_files(photos):
         media = []
         files = {}
@@ -974,18 +1305,27 @@ def send_alert_to_telegram(bot_token, chat_id, photos, caption):
 ############### HELPER FUNCTIONS #################
 ##################################################
 
+def current_time():
+    """
+    Get the current time formatted as a string.
 
-def detections_in_sequence(df, images):
-    last_rows = df.iloc[-len(images):]
-    human_or_vehicle_present = (last_rows['Human Count'] > 0).any() or (last_rows['Vehicle Count'] > 0).any()
-    primary_species_not_empty = (last_rows['Primary Species'] != "Empty").any()
-    return human_or_vehicle_present or primary_species_not_empty
+    Returns:
+        - now (str): The current time formatted as "YYYY-MM-DD HH:MM:SS".
+    """
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return now
 
 
 from datetime import datetime
 import pytz
 
 def get_current_time_in_romania():
+    """
+    Get the current time in Romania.
+
+    Returns:
+        - (str): The current time in Romania formatted as "HH:MM".
+    """
     romania_tz = pytz.timezone('Europe/Bucharest')
     return datetime.now(romania_tz).strftime("%H:%M")
 
@@ -994,6 +1334,18 @@ from PIL import Image
 
 
 def save_images(df, images, human_warning, PHOTOS_PATH):
+    """
+    Save images to a specified directory and update the dataframe with the file paths.
+
+    Parameters:
+        - df (dataframe): The dataframe containing detection data.
+        - images (list): A list of images to be saved.
+        - human_warning (bool): Flag indicating if humans or vehicles were detected.
+        - PHOTOS_PATH (str): The path to the directory where images will be saved.
+
+    Returns:
+        - df (dataframe): The updated dataframe with file paths for the saved images.
+    """
     # Ensure the PHOTOS_PATH directory exists
     os.makedirs(PHOTOS_PATH, exist_ok=True)
 
@@ -1027,7 +1379,17 @@ def save_images(df, images, human_warning, PHOTOS_PATH):
     return df
 
 def get_romanian_class(input_value, CLASSIFIER_CLASSES, ROMANIAN_CLASSES):
-    
+    """
+    Convert species names from English to Romanian.
+
+    Parameters:
+        - input_value (str or list): The input species name(s) as a string or list of strings.
+        - CLASSIFIER_CLASSES (list): The list of classifier classes in English.
+        - ROMANIAN_CLASSES (list): The list of classifier classes in Romanian.
+
+    Returns:
+        - result (str): The species name(s) translated to Romanian, joined by commas if multiple.
+    """
     if isinstance(input_value, str):
         # Check if the string is a single species or a comma-separated list
         if ', ' in input_value:
@@ -1053,6 +1415,15 @@ def get_romanian_class(input_value, CLASSIFIER_CLASSES, ROMANIAN_CLASSES):
     return result
 
 def guess_gender(word):
+    """
+    Guess the gender of a Romanian word based on its ending.
+
+    Parameters:
+        - word (str): The Romanian word to guess the gender of.
+
+    Returns:
+        - (str): The guessed gender ('m' for masculine, 'f' for feminine, 'n' for neuter).
+    """
     if word == "Câine":
         return "m"
     elif word.endswith(('ă', 'e')):
@@ -1063,6 +1434,16 @@ def guess_gender(word):
         return "n"
 
 def pluralize_romanian(word, count):
+    """
+    Pluralize a Romanian word based on the count.
+
+    Parameters:
+        - word (str): The Romanian word to be pluralized.
+        - count (int): The count to determine pluralization.
+
+    Returns:
+        - (str): The pluralized Romanian word if count > 1, otherwise the original word.
+    """
     if count > 1:
         if word == "Cal":
             return "Cai"
@@ -1075,57 +1456,17 @@ def pluralize_romanian(word, count):
     return word
 
 def get_detected_word(count, gender):
+    """
+    Get the appropriate Romanian word for "detected" based on the count and gender.
+
+    Parameters:
+        - count (int): The count of detected items.
+        - gender (str): The gender of the detected item ('m' for masculine, 'f' for feminine, 'n' for neuter).
+
+    Returns:
+        - (str): The Romanian word for "detected" adjusted for count and gender.
+    """
     if count > 1:
         return "Detectați" if gender in ["m", "n"] else "Detectate"
     else:
         return "Detectat" if gender in ["m", "n"] else "Detectată"
-
-
-
-import smtplib
-import os
-from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-from email.mime.text import MIMEText
-from email import encoders
-from datetime import datetime
-import pandas as pd
-import time
-
-def send_weekly_report(SMTP_SERVER, EMAIL_SENDER, EMAIL_PASSWORD, SMTP_PORT, CAPTURE_DATABASE_PATH, CAMERA_LOCATIONS_PATH, RECIPIENTS, EMAIL_USER):
-    subject = "Camera Trap Alert System: Weekly Report"
-    body = "Good morning,\n\nPlease see attached the latest versions of:\n\n(1) The alert system capture database.\n(2) The camera trap status log.\n\nWeekly reports are sent every Monday at 08:00.\n\nBest regards,\n\nFCC Camera Trap Automatic Alert System"
-
-    attachments = [CAPTURE_DATABASE_PATH, CAMERA_LOCATIONS_PATH]
-
-    msg = MIMEMultipart()
-    msg['From'] = EMAIL_SENDER
-    msg['To'] = ", ".join(RECIPIENTS)
-    msg['Subject'] = subject
-
-    msg.attach(MIMEText(body, 'plain'))
-
-    for file_path in attachments:
-        attachment = MIMEBase('application', 'octet-stream')
-        try:
-            with open(file_path, 'rb') as file:
-                attachment.set_payload(file.read())
-            encoders.encode_base64(attachment)
-            attachment.add_header('Content-Disposition', f'attachment; filename={os.path.basename(file_path)}')
-            msg.attach(attachment)
-        except Exception as e:
-            print(f"\n{current_time()} | Error attaching file to weekly report {file_path}: {e}")
-
-    try:
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            server.starttls()
-            server.login(EMAIL_SENDER, EMAIL_PASSWORD)
-            server.send_message(msg)
-            print(f"\n{current_time()} | Weekly report email sent successfully.")
-            print(f"\n{current_time()} | Monitoring {EMAIL_USER} for new messages...")
-    except Exception as e:
-        print(f"\n{current_time()} | Failed to send weekly report email: {e}")
-        print(f"\n{current_time()} | Monitoring {EMAIL_USER} for new messages...")
-
-
-
