@@ -13,6 +13,8 @@ This repository contains code to run an wildlife alert system on your laptop, PC
 
 The system will process photos sent from a 4G-enabled camera trap and send alerts directly to your mobile phone.
 
+The system uses a classification [model](#-models) which can identify 26 European mammals, however it can be adapted to use other models.
+
 To get started, you will need at least one 4G-enabled camera trap, a dedicated email address, a Telegram account and some basic python skills.
 
 If you don't have these - or you just want to test the system on your laptop - run the [Example Tutorial](#-example-tutorial).
@@ -107,6 +109,8 @@ If you are using the alert system in the Carpathian Mountains or would like to b
 
 - Carpathian Mountain Model: [fine-tuned-deepfaune-balanced-loss.pt](https://drive.google.com/file/d/1Y0P7Z4DX1s7Sj3v7LjbeZNkMC4wByKPi/view?usp=sharing)
 - Carpathian Mountain Model (biased to bears and wild boars): [fine-tuned-deepfaune-biased-loss.pt](https://drive.google.com/file/d/1Co5UuHwNKCPfCW3KTZ9M_42HzvS4IpzV/view?usp=sharing)
+
+Advanced users can also adapt the code to integrate their own classification models to identify different species. See [Dan Morris' Camera Trap Survey](https://github.com/agentmorris/camera-trap-ml-survey?tab=readme-ov-file#publicly-available-ml-models-for-camera-traps) for potential alternatives.
 
 ## 📷 Data
 
