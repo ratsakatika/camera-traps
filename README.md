@@ -13,7 +13,7 @@ This repository contains code to run an wildlife alert system on your laptop, PC
 
 The system will process photos sent from a 4G-enabled camera trap and send alerts directly to your mobile phone.
 
-The system uses a classification [model](#-models) which can identify 26 European mammals, however it can be adapted to use other models.
+The system uses a classification [model](#-models) which can identify **26 European mammals**, however it can be adapted to use other models.
 
 To get started, you will need at least one 4G-enabled camera trap, a dedicated email address, a Telegram account and some basic python skills.
 
