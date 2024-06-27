@@ -67,14 +67,7 @@ Once you are set up with Jupyter, you will need to copy the alert system code re
 
 VS Code also provides tools to "clone" (copy) a repository. You can alternatively download everything as a zip file by clicking on the green 'code' button at the top of this page.
 
-Now you will need to create a ["virtual environment"](https://docs.python.org/3/library/venv.html) and install all the modules needed to run the alert system. Open a new terminal (within VS Code or your operating system), navigate to the camera-traps folder (`cd camera-traps`), and create a virtual environment with the required modules using pip (recommended) or conda (<a href="https://docs.anaconda.com/miniconda/#" target="_blank">download here</a>):
-
-  - Using pip (Windows):
-    ```bash
-    python -m venv camera_traps
-    camera_traps\Scripts\activate
-    pip install -r requirements.txt
-    ```
+Now you will need to create a ["virtual environment"](https://docs.python.org/3/library/venv.html) and install all the modules needed to run the alert system. Open a new terminal (within VS Code or your operating system), navigate to the camera-traps folder (`cd camera-traps`), and create a virtual environment with the required modules using pip (recommended for Linux/macOS) or conda (<a href="https://docs.anaconda.com/miniconda/#" target="_blank">download here</a>):
 
   - Using pip (Linux/macOS):
     ```bash
