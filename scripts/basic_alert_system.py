@@ -42,10 +42,25 @@ ANIMAL_CLASSES = ["badger", "ibex", "red deer", "chamois", "cat", "goat", "roe d
                   "sheep", "mustelid", "bird", "bear", "nutria", "fox", "wild boar", "cow"]
 
 class Detector:
+    """
+    Detector class to perform object detection using YOLO model.
+    """
     def __init__(self):
+        """
+        Initialise the detector with a YOLO model.
+        """
         self.model = YOLO(MODEL_PATH_DETECTOR)
 
     def bestBoxDetection(self, imagecv):
+        """
+        Detect the best bounding box in the given image.
+
+        Args:
+            imagecv (numpy.ndarray): Image in OpenCV format.
+
+        Returns:
+            tuple: Cropped image, class ID, bounding box coordinates, confidence score, and additional information (None).
+        """
         image_rgb = cv2.cvtColor(imagecv, cv2.COLOR_BGR2RGB)
         image_pil = Image.fromarray(image_rgb)
         resized_image = image_pil.resize((960, 960), Image.Resampling.LANCZOS)
@@ -62,7 +77,13 @@ class Detector:
         return cropped_image, int(cls_id), box, conf, None
 
 class Classifier:
+    """
+    Classifier class to classify detected objects using a ViT model.
+    """
     def __init__(self):
+        """
+        Initialize the classifier with a ViT model and necessary transforms.
+        """
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.model = timm.create_model('vit_large_patch14_dinov2', pretrained=False, num_classes=len(ANIMAL_CLASSES), dynamic_img_size=True)
         state_dict = torch.load(MODEL_PATH_CLASSIFIER, map_location=torch.device(device))['state_dict']
@@ -75,6 +96,15 @@ class Classifier:
         self.model.eval()
 
     def predict(self, image):
+        """
+        Predict the class of the given image.
+
+        Args:
+            image (PIL.Image): Image to classify.
+
+        Returns:
+            tuple: Predicted animal type and confidence score.
+        """
         img_tensor = self.transforms(image).unsqueeze(0)
         with torch.no_grad():
             output = self.model(img_tensor)
@@ -83,6 +113,15 @@ class Classifier:
             return ANIMAL_CLASSES[top_class.item()], top_p.item()
 
 def process_single_image(image):
+    """
+    Process a single image to detect and classify animals.
+
+    Args:
+        image (PIL.Image): Image to process.
+
+    Returns:
+        tuple: Processed image and caption with detection details.
+    """
     detector = Detector()
     classifier = Classifier()
     imagecv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
@@ -97,6 +136,15 @@ def process_single_image(image):
         return None, None
 
 def send_photo_to_telegram(bot_token, chat_id, photo, caption):
+    """
+    Send a photo to a specified Telegram chat.
+
+    Args:
+        bot_token (str): Telegram bot token.
+        chat_id (str): Telegram chat ID.
+        photo (PIL.Image): Photo to send.
+        caption (str): Caption for the photo.
+    """
     url = f"https://api.telegram.org/bot{bot_token}/sendPhoto"
     with io.BytesIO() as buf:
         photo.save(buf, format='JPEG')
@@ -108,6 +156,15 @@ def send_photo_to_telegram(bot_token, chat_id, photo, caption):
         print("Alert sent.")
 
 def download_image_from_url(url):
+    """
+    Download an image from a given URL.
+
+    Args:
+        url (str): URL of the image to download.
+
+    Returns:
+        PIL.Image: Downloaded image.
+    """
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -118,6 +175,15 @@ def download_image_from_url(url):
         return None
 
 def extract_images_from_email(msg):
+    """
+    Extract images from an email message.
+
+    Args:
+        msg (email.message.Message): Email message to process.
+
+    Returns:
+        list: List of extracted images.
+    """
     image_list = []
     if msg.is_multipart():
         for part in msg.walk():
@@ -142,6 +208,13 @@ def extract_images_from_email(msg):
     return image_list
 
 def check_emails():
+    """
+    Check and process new emails for images.
+
+    This function connects to the email server, fetches unseen emails,
+    extracts images, processes each image, and sends the processed image
+    to a specified Telegram chat.
+    """
     mail = imaplib.IMAP4_SSL(IMAP_HOST)
     mail.login(EMAIL_USER, EMAIL_PASS)
     mail.select('inbox')
@@ -160,6 +233,9 @@ def check_emails():
     mail.logout()
 
 if __name__ == "__main__":
+    """
+    Main loop to monitor email for new messages and process them.
+    """
     print(f"Monitoring {EMAIL_USER} for new messages...")
     while True:
         try:
