@@ -3,19 +3,19 @@
 
 **Thomas Ratsakatika | AI and Environment Researcher | University of Cambridge**
 
-This software was developed in partnership with <a href="https://www.carpathia.org/" target="_blank">Fundația Conservation Carpathia</a>, a nature conservation and restoration organisation based in the Romania.
+This software was developed in partnership with <a href="https://www.carpathia.org/" target="_blank">Fundația Conservation Carpathia</a>, a nature conservation and restoration organisation based in Romania.
 
 <i>Read the [licenses](#-license) and [disclaimer](#-disclaimer) before use.</i>
 
 ## 💡 Overview 
 
-This repository contains code to run an wildlife alert system on your laptop, PC or server. You can even run the basic version on a [Raspberry Pi 4B](https://www.raspberrypi.com/products/raspberry-pi-4-model-b/) (requires 4GB RAM minimum).
+This repository contains code to run a wildlife alert system on your laptop, PC or server. You can even run the basic version on a [Raspberry Pi 4B](https://www.raspberrypi.com/products/raspberry-pi-4-model-b/) (requires 4GB RAM minimum).
 
 The system will process photos sent from a 4G-enabled camera trap and send alerts directly to your mobile phone.
 
-The system uses a classification [model](#-models) that can identify **26 European mammals**, however it can be adapted to use other models.
+The system uses a classification [model](#-models) that can identify **26 European mammals**, however, it can be adapted to use other models.
 
-To get started, you will need at least one 4G-enabled camera trap, a dedicated email address, a Telegram account and some basic python skills.
+To get started, you will need at least one 4G-enabled camera trap, a dedicated email address, a Telegram account and some basic Python skills.
 
 If you don't have these - or you just want to test the system on your laptop - run the [Example Tutorial](#-example-tutorial).
 
@@ -43,14 +43,14 @@ Get started by following the steps below. If anything doesn't make sense, follow
 5. Set up your 4G camera trap to send photos to this dedicated email address.
 6. Create a bot in Telegram using @BotFather and note down the bot token (<a href="https://core.telegram.org/bots/tutorial" target="_blank">detailed instructions here</a>).
 7. Create a group in Telegram, add the bot to the group and make it an admin. Then note down the group's <a href="https://www.wikihow.com/Know-Chat-ID-on-Telegram-on-Android" target="_blank">chat ID</a> (do this AFTER adding the bot - the chat ID should start with '#-100')
-8. Update the config.yaml file with your email account settings and Telegram chat ID and bot token.
+8. Update the config.yaml file with your email account settings, and Telegram chat ID and bot token.
 9. Update the [camera locations](data/camera_locations.csv) CSV file with your camera(s) details, location and a google maps link.
 10. Verify that the settings in the the [alert system script](scripts/advanced_alert_system.py) meet your requirements.
 11. Activate the virtual environment and run the alert system script: `python3 scripts/advanced_alert_system.py`
 
-The script will check the email account every 60 seconds for unread emails, download any photos, detect and classify animals, and send an alert your Telegram Group. It will then update the [capture database](data/capture_database.csv) and save the original photos in the [photos folder](data/photos). A high level process flow diagramme can be found [here](assets/final_alert_system_flow_diagram.png).
+The script will check the email account every 60 seconds for unread emails, download any photos, detect and classify animals, and send an alert to your Telegram Group. It will then update the [capture database](data/capture_database.csv) and save the original photos in the [photos folder](data/photos). A high-level process flow diagramme can be found [here](assets/final_alert_system_flow_diagram.png).
 
-You can also find code for processing camera trap data, and testing and fine tuning AI models in the [archive](archive) folder. These notebooks are experimental and while they contain comments, are no detailed tutorials. [Contact me](#-contact) if you have any queries.
+You can also find code for processing camera trap data, and testing and fine-tuning AI models in the [archive](archive) folder. These notebooks are experimental and while they contain comments, are no detailed tutorials. [Contact me](#-contact) if you have any queries.
 
 ### 🎓 Example Tutorial
 
@@ -206,7 +206,7 @@ The MegaDetector model's license can be <a href="https://github.com/agentmorris/
 
 I would like to extend my sincere thanks to <a href="https://www.cst.cam.ac.uk/people/sk818" target="_blank">Professor Srinivasan Keshav</a> and <a href="https://www.researchgate.net/profile/Ruben-Iosif" target="_blank">Dr Ruben Iosif</a> for their invaluable insights and expertise while developing this software. I would also like to thank Fundația Conservation Carpathia's Wildlife and Rapid Intervention Team, who hosted me in Romania, deployed the camera traps, and provided valuable feedback during the system's development.
 
-This software was built as part of the UKRI-funded [Artificial Intelligence for Environmental Risk](https://ai4er-cdt.esc.cam.ac.uk/) Centre for Doctoral Training programme at the University Cambridge.
+This software was built as part of the UKRI-funded [Artificial Intelligence for Environmental Risk](https://ai4er-cdt.esc.cam.ac.uk/) Centre for Doctoral Training programme at the University of Cambridge.
 
 <div style="display: flex; justify-content: center;">
   <table>
