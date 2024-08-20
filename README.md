@@ -3,9 +3,9 @@
 
 **Thomas Ratsakatika | AI and Environment Researcher | University of Cambridge**
 
-This software was developed in partnership with <a href="https://www.carpathia.org/" target="_blank">Fundația Conservation Carpathia</a>, a nature conservation and restoration organisation based in Romania. The research report detailing the software's development can be [found here](https://github.com/ratsakatika/camera-traps/blob/main/report/T.%20Ratsakatika%20-%20Real-Time%20Wildlife%20Monitoring.pdf).
+This software was developed in partnership with <a href="https://www.carpathia.org/" target="_blank">Fundația Conservation Carpathia</a>, a nature conservation and restoration organisation based in Romania. <i>Read the [licenses](#-license) and [disclaimer](#-disclaimer) before use.</i>
 
-<i>Read the [licenses](#-license) and [disclaimer](#-disclaimer) before use.</i>
+The research report detailing the software's development can be [found here](https://github.com/ratsakatika/camera-traps/blob/main/report/T.%20Ratsakatika%20-%20Real-Time%20Wildlife%20Monitoring.pdf).
 
 ## 💡 Overview 
 
