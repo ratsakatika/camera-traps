@@ -24,7 +24,11 @@ If you don't have these - or you just want to test the system on your laptop - r
   <p>© Photos credit: <a href="https://www.carpathia.org/" target="_blank">Fundația Conservation Carpathia</a> </p>
 </div>
 
-## 📣  Example alert message
+## 📺 Video Overview
+
+[![Youtube Example](https://img.youtube.com/vi/OKkS0pvlKrU/0.jpg)](https://www.youtube.com/watch?v=OKkS0pvlKrU)
+
+## 📣 Example Alert Message
 
 <img src="assets/screenshot.png" alt="Example Alert" width="400" />
 
