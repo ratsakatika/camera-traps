@@ -26,7 +26,7 @@ If you don't have these - or you just want to test the system on your laptop - r
 
 ## 📺 Example Video
 
-[![Example Video](https://img.youtube.com/vi/OKkS0pvlKrU/0.jpg)](https://www.youtube.com/watch?v=OKkS0pvlKrU)
+[![Example Video](https://img.youtube.com/vi/_w2BkjES0kM/0.jpg)](https://www.youtube.com/watch?v=_w2BkjES0kM)
 
 ## 📣 Example Alert Message
 
