@@ -42,7 +42,7 @@ Get started by following the steps below. If anything doesn't make sense, follow
 
 1. Clone the repository.
 2. Download the [detection and classification models](#-models) and move them to the [models](models) directory.
-3. Create the camera traps virtual environment with pip (requirement.txt - recommended) or conda (environment.yml).
+3. Create the camera traps virtual environment with conda (environment.yml) or pip (requirement.txt -  Python <3.12, >=3.9 ONLY).
 4. Create a dedicated email account to receive the 4G camera trap photos and generate an app password. Your email provider **must** support app passwords (e.g. <a href="https://myaccount.google.com/apppasswords" target="_blank">Gmail</a>).
 5. Set up your 4G camera trap to send photos to this dedicated email address.
 6. Create a bot in Telegram using @BotFather and note down the bot token (<a href="https://core.telegram.org/bots/tutorial" target="_blank">detailed instructions here</a>).
@@ -52,7 +52,7 @@ Get started by following the steps below. If anything doesn't make sense, follow
 10. Verify that the settings in the the [alert system script](scripts/advanced_alert_system.py) meet your requirements.
 11. Activate the virtual environment and run the alert system script: `python3 scripts/advanced_alert_system.py`
 
-The script will check the email account every 60 seconds for unread emails, download any photos, detect and classify animals, and send an alert to your Telegram Group. It will then update the [capture database](data/capture_database.csv) and save the original photos in the [photos folder](data/photos). A high-level process flow diagramme can be found [here](assets/final_alert_system_flow_diagram.png).
+The script will check the email account every 60 seconds for unread emails, download any photos, detect and classify animals, and send an alert to your Telegram Group. It will then update the [capture database](data/capture_database.csv) and save the original photos in the [photos folder](data/photos). A high-level process flow diagram can be found [here](assets/final_alert_system_flow_diagram.png).
 
 You can also find code for processing camera trap data, and testing and fine-tuning AI models in the [archive](archive) folder. These notebooks are experimental and while they contain comments, are no detailed tutorials. [Contact me](#-contact) if you have any queries.
 
@@ -73,24 +73,23 @@ VS Code also provides tools to "clone" (copy) a repository. You can alternativel
 
 Now you will need to create a ["virtual environment"](https://docs.python.org/3/library/venv.html) and install all the modules needed to run the alert system. Open a new terminal (within VS Code or your operating system), navigate to the camera-traps folder (`cd camera-traps`), and create a virtual environment with the required modules using pip (recommended for Linux/macOS) or conda (<a href="https://docs.anaconda.com/miniconda/#" target="_blank">download here</a>):
 
-  - Using pip (Linux/macOS):
-    ```bash
-    python3 -m venv camera_traps
-    source camera_traps/bin/activate
-    pip install -r requirements.txt
-    ```
-
   - Using conda (Windows/Linux/macOS):
     ```bash
     conda env create -f environment.yml
     conda activate camera_traps
     ```
 
- You are now ready to open and run the [Example Tutorial Notebook](notebooks/alert_system_tutorial.ipynb).
+  - Using pip (Python <3.12, >=3.9, Linux/macOS ONLY):
+    ```bash
+    python3 -m venv camera_traps
+    source camera_traps/bin/activate
+    pip install -r requirements.txt
+    ```
+ You can now open and run the [Example Tutorial Notebook](notebooks/alert_system_tutorial.ipynb).
 
 ## 🤖 Models
 
-**Important:** Users must agree to the respective license terms of third-party models. Once downloaded, these models should be moved to [models](models) directory.
+**Important:** Users must agree to the respective license terms of third-party models. Once downloaded, these models should be moved to the [models](models) directory.
 
 The **advanced version** of the alert system uses the <a href="https://github.com/agentmorris/MegaDetector?tab=readme-ov-file" target="_blank">MegaDetector</a> object detection model and <a href="https://www.deepfaune.cnrs.fr/en/" target="_blank">DeepFaune</a> species classification model:
 
@@ -204,7 +203,7 @@ The MegaDetector model's license can be <a href="https://github.com/agentmorris/
 
 ## ❗ Disclaimer
 
-*Anyone who accesses, uses, or refers to this repository, including but not limited to its code, software, applications, instructions, and any third-party applications or services mentioned or linked herein, takes full responsibility for their actions and outcomes. The author(s) of this repository make no warranties or representations, express or implied, regarding the accuracy, reliability, completeness, or suitability of the code, instructions, or any associated third-party applications or services for any particular purpose. By accessing or using this repository, you agree to do so at your own risk and in accordance with the terms of the relevant licenses. The author(s) shall not be held liable for any damages, including but not limited to direct, indirect, incidental, or consequential damages, arising from the use or misuse of the code, applications, instructions, or any third-party applications or services. Users are advised to review and comply with all applicable laws, licenses, and terms of use of any third-party code, applications, or services referenced in this repository.*
+*Anyone who accesses, uses, or refers to this repository, including but not limited to its code, software, applications, instructions, and any third-party applications or services mentioned or linked herein, takes full responsibility for their actions and outcomes. The author(s) of this repository makes no warranties or representations, express or implied, regarding the accuracy, reliability, completeness, or suitability of the code, instructions, or any associated third-party applications or services for any particular purpose. By accessing or using this repository, you agree to do so at your own risk and in accordance with the terms of the relevant licenses. The author(s) shall not be held liable for any damages, including but not limited to direct, indirect, incidental, or consequential damages, arising from the use or misuse of the code, applications, instructions, or any third-party applications or services. Users are advised to review and comply with all applicable laws, licenses, and terms of use of any third-party code, applications, or services referenced in this repository.*
 
 ## 🙏 Acknowledgements
 
