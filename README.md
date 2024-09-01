@@ -7,7 +7,7 @@ This software was developed in partnership with <a href="https://www.carpathia.o
 
 The research report detailing the software's development can be [found here](https://github.com/ratsakatika/camera-traps/blob/main/report/T.%20Ratsakatika%20-%20Real-Time%20Wildlife%20Monitoring.pdf).
 
-## 💡 Overview 
+## 💡 Overview
 
 This repository contains code to run a wildlife alert system on your laptop, PC or server. You can even run the basic version on a [Raspberry Pi 4B](https://www.raspberrypi.com/products/raspberry-pi-4-model-b/) (requires 4GB RAM minimum).
 
@@ -155,6 +155,7 @@ For questions or more information, please contact [Tom Ratsakatika](mailto:trr26
 ### DeepFaune Detection and Classification Models
 
 ```
+{% raw %}
 @misc{rigoudy_deepfaune_2024,
   author       = {Noa Rigoudy and Gaspard Dussert and Abdelbaki Benyoub and Aurélien Besnard and Carole Birck},
   title        = {{DeepFaune} / {DeepFaune} {Software} · {GitLab}},
@@ -166,6 +167,7 @@ For questions or more information, please contact [Tom Ratsakatika](mailto:trr26
   urldate      = {2024-04-08},
   journal      = {GitLab}
 }
+{% endraw %}
 ```
 
 ### MegaDetector Detection Model
