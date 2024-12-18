@@ -1,4 +1,4 @@
-name: camera_traps_conda
+name: camera_traps
 channels:
   - defaults
   - conda-forge
