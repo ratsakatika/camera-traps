@@ -9,12 +9,7 @@ data/photos
 
 scrips/__pycache__
 
-models/deepfaune-vit_large_patch14_dinov2.lvd142m.pt
-models/deepfaune-yolov8s_960.pt
-models/fine-tuned-deepfaune-balanced-loss.pt
-models/fine-tuned-deepfaune-biased-loss.pt
-models/fine-tuned-deepfaune-vit_large_patch14_dinov2.lvd142m.pt
-models/md_v5a.0.0.pt
+models/
 
 camera_traps
 
