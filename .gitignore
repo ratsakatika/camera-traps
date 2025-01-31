@@ -6,6 +6,8 @@ data/classification_tests
 data/manual_labelling
 data/field_tests
 data/photos
+data/camera_locations.csv
+data/capture_database.csv
 
 scrips/__pycache__
 

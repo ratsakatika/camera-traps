@@ -39,6 +39,14 @@ def image_to_bytes(image):
     byte_arr.seek(0)
     return byte_arr
 
+
+from PytorchWildlife.models import detection as pw_detection
+from PytorchWildlife import utils as pw_utils
+import torch
+import os
+import tempfile
+
+
 def detector(df, model, images, DETECTION_THRESHOLD):
     """
     Runs MegaDetector on a list of images and updates a dataframe with detection results.
@@ -65,8 +73,20 @@ def detector(df, model, images, DETECTION_THRESHOLD):
         raise ValueError(f"{current_time()} | Critical Error: The DataFrame does not have enough rows to update.")
 
     for i, image in enumerate(images):
-        processed_image = vis_utils.load_image(image_to_bytes(image))
-        result = model.generate_detections_one_image(processed_image)
+
+        # Save the image temporarily to a file
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
+            temp_file_path = temp_file.name
+            image.save(temp_file_path)  # Save image to temporary file
+
+        # Now pass the file path to the model
+        result = model.single_image_detection(temp_file_path)
+
+        # Delete the temporary file after processing
+        os.remove(temp_file_path)
+
+
+        # result = model.generate_detections_one_image(processed_image)
         detections_above_threshold = [d for d in result['detections'] if d['conf'] > DETECTION_THRESHOLD]
 
         detection_boxes = [d['bbox'] for d in detections_above_threshold]
