@@ -82,12 +82,20 @@ def detector(df, model, images, DETECTION_THRESHOLD):
         # Now pass the file path to the model
         result = model.single_image_detection(temp_file_path)
 
+        print(result)
+
         # Delete the temporary file after processing
         os.remove(temp_file_path)
 
-
-        # result = model.generate_detections_one_image(processed_image)
-        detections_above_threshold = [d for d in result['detections'] if d['conf'] > DETECTION_THRESHOLD]
+        # Access the detections in the result
+        detections_above_threshold = []
+        for idx, conf in enumerate(result['detections'].confidence):
+            if conf > DETECTION_THRESHOLD:
+                detections_above_threshold.append({
+                    'bbox': result['detections'].xyxy[idx],  # Bounding box
+                    'category': result['detections'].class_id[idx],  # Class ID
+                    'conf': conf  # Confidence
+                })
 
         detection_boxes = [d['bbox'] for d in detections_above_threshold]
         detection_classes = [d['category'] for d in detections_above_threshold]
@@ -98,6 +106,16 @@ def detector(df, model, images, DETECTION_THRESHOLD):
         vehicle_count = sum(1 for d in detections_above_threshold if d['category'] == '3')
 
         print(f"{current_time()} | Image {i+1}: Animal Count = {animal_count}, Human Count = {human_count}, Vehicle Count = {vehicle_count}")
+
+
+        # Draw the bounding boxes on the image (for debugging)
+        draw = ImageDraw.Draw(image)
+        for bbox in detection_boxes:
+            x1, y1, x2, y2 = bbox
+            draw.rectangle([x1, y1, x2, y2], outline="red", width=3)
+        
+        # Display the image with detection boxes in the notebook
+        display(image)
 
         # Update the respective row in the DataFrame
         df.at[df.index[-num_images + i], 'Detection Boxes'] = detection_boxes
