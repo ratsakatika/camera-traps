@@ -1201,7 +1201,7 @@ def generate_alert_caption_en(df, human_warning, num_images, priority_detections
         species_label = species if count == 1 else f"{species}s"  # Add "s" for plural species
 
         # Format the alert line for the species
-        if round(min_conf, 0) == round(max_conf, 0):
+        if round(min_conf, 2) == round(max_conf, 2):
             # If min and max confidence are the same, just show the single confidence value
             alert_caption += f"🔹 {count} {species_label} ({min_conf*100:.0f}% confidence)\n"
         else:
@@ -1336,6 +1336,8 @@ def generate_alert_caption_ro(df, human_warning, num_images, priority_detections
                 species_confidences_dict[species][0] = min(species_confidences_dict[species][0], confidence)  # Min confidence
                 species_confidences_dict[species][1] = max(species_confidences_dict[species][1], confidence)  # Max confidence
 
+    print(species_confidences_dict)
+
     # Helper function to pluralise Romanian animal names
     def pluralize_romanian(word, count):
         if count > 1:
@@ -1365,7 +1367,7 @@ def generate_alert_caption_ro(df, human_warning, num_images, priority_detections
         species_label = pluralize_romanian(species_romanian, count)
 
         # Format the alert line for the species
-        if round(min_conf, 0) == round(max_conf, 0):
+        if round(min_conf, 2) == round(max_conf, 2):
             # If min and max confidence are the same, just show the single confidence value
             alert_caption += f"🔹 {count} {species_label} ({min_conf*100:.0f}% precizie)\n"
         else:
