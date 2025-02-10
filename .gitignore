@@ -1,20 +1,15 @@
+# Folders
 archive/more_files
-
-data/conflict_coordinates
-data/detector_tests
-data/classification_tests
-data/manual_labelling
-data/field_tests
-data/photos
-data/camera_locations.csv
-data/capture_database.csv
-
+data/
 scrips/__pycache__
-
 models/
 
-camera_traps
-
+# Files
 .vscode
-
 config.yaml
+
+# Virtual environment folders
+
+venv_camera_traps/
+.venv
+camera_traps
