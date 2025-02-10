@@ -15,3 +15,19 @@ smtp_config:
   recipients:
     - 'RECIPIENT_EMAIL_ADDRESS_1'
     - 'RECIPIENT_EMAIL_ADDRESS_2'
+
+telegram_config:
+  bot_token: 'YOUR_BOT_TOKEN'
+  chat_id_all: 'YOUR_CHAT_ID'
+  chat_id_priority: 'YOUR_CHAT_ID'
+  chat_id_human: 'YOUR_CHAT_ID'
+
+system_config:
+  LANGUAGE: 'en' # Enter EN for English and RO for Romanian
+  CHECK_EMAIL_FREQUENCY: 60 # How often the system checks emails in seconds (default = 60)
+  DETECTION_THRESHOLD: 0.20
+  CLASSIFICATION_THRESHOLD: 0.60
+  PRIORITY_SPECIES:
+    - 'Wolf'
+    - 'Bear'
+    - 'Wild Boar'
