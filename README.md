@@ -46,7 +46,7 @@ Get started by following the steps below. If anything doesn't make sense, follow
 
 1. Clone the repository.
 2. Download the [detection and classification models](#-models) and move them to the [models](models) directory.
-3. Create the camera traps virtual environment with conda (environment.yml) or pip (requirement.txt -  Python <3.12, >=3.9 ONLY).
+3. Create the camera traps virtual environment with pip (requirement.txt) or conda (environment.yml).
 4. Create a dedicated email account to receive the 4G camera trap photos and generate an app password. Your email provider **must** support app passwords (e.g. <a href="https://myaccount.google.com/apppasswords" target="_blank">Gmail - requires two-factor authentication set up</a>).
 5. Set up your 4G camera trap to send photos to this dedicated email address.
 6. Create a bot in Telegram using @BotFather and note down the bot token (<a href="https://core.telegram.org/bots/tutorial" target="_blank">detailed instructions here</a>).
