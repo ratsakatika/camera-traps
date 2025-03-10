@@ -1,13 +1,13 @@
 name: camera_traps
 channels:
-  - defaults
   - conda-forge
+  - defaults
 dependencies:
-  - python=3.11
+  - python
   - ipykernel
   - ipywidgets
   - schedule
+  - timm
   - pip
   - pip:
-    - megadetector
-    - timm
+      - PytorchWildlife

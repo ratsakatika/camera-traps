@@ -1,15 +1,14 @@
-################################################
-########### IMPORT REQUIRED MODULES ############
-################################################
+### Import required modules ###
 
-from megadetector.detection import run_detector  # MegaDetector object detection model
+from PytorchWildlife.models import detection as pw_detection # MegaDetector object detection model
+
 import pandas as pd             # Data manipulation and analysis
 import time                     # Time functions
 from datetime import datetime   # Date and time manipulation
 import schedule                 # Schedule function for weekly reports
 import functools                # Function for weekly reports
 import sys                      # System parameters and functions
-import os
+import os                       # Functions for interacting with the operating system
 sys.path.append('../scripts')   # Add scripts directory to system path
 
 ### Import alert system functions from ../scripts/alert_system_utils.py ###
@@ -33,54 +32,74 @@ from alert_system_utils import (
 
     ### Functions to annotate photos and send an alert to Telegram ###
 
-    generate_alert_caption_en,     # Generate captions for alerts in English
-    generate_alert_caption_ro,     # Generate captions for alerts in Romanian
+    generate_alert_caption_en,     # Generate captions for alerts (English)
+    generate_alert_caption_ro,     # Generate captions for alerts (Romanian)
     send_alert_to_telegram,        # Send alerts to Telegram
     annotate_images_en,            # Annotate images with detection results (English)
     annotate_images_ro,            # Annotate images with detection results (Romanian)
 
     ### Functions to save the photos and send weekly reports ###
-    save_images,                # Save images to disk
-    send_weekly_report,         # Send a weekly report
+    save_images,                   # Save images to disk
+    send_weekly_report,            # Send a weekly report
 
     #### Function to load the settings from the configuration file
-    load_config                 # Loads configuration file settings
+    load_config                    # Loads configuration file settings
 )
+
 
 ###############################################################
 ####### INITIALISE DETECTION AND CLASSIFICATION MODELS ########
 ###############################################################
 
+# Set Device - GPU or CPU
+device = set_device()
+
 # Detection Model Settings
-DETECTOR_MODEL_PATH = '../models/md_v5a.0.0.pt'
+
+DETECTOR_MODEL_V6 = False   # True = v6, False = v5
 DETECTOR_CLASSES = ["animal", "human", "vehicle"]
+
+print(f"Loading detector...")
+if DETECTOR_MODEL_V6:
+    weights = os.path.join("../models/MDV6-yolov10x.pt")
+    detector_model = pw_detection.MegaDetectorV6(device=device, weights=weights, pretrained=True, version="MDV6-yolov10-e")
+    detector_model.predictor.args.verbose = False
+    print("Using MegaDetector v6 (MDV6-yolov9-e)")
+else:
+    weights = os.path.join("../models/md_v5a.0.0.pt")
+    detector_model = pw_detection.MegaDetectorV5(device=device, weights=weights, pretrained=True, version="a")
+    print("Using MegaDetector v5 (md_v5a.0.0)")
 
 # Classification Model Settings
 BACKBONE = 'vit_large_patch14_dinov2'
-CLASSIFIER_MODEL_PATH = '../models/deepfaune-vit_large_patch14_dinov2.lvd142m.pt'   # Change to fine-tuned model if desired
+
+BACKBONE = 'vit_large_patch14_dinov2'
+CLASSIFIER_MODEL_PATH = '../models/deepfaune-vit_large_patch14_dinov2.lvd142m.v3.pt'  # Update to the new model path if needed
+
 CLASSIFIER_CLASSES = [
-    "Badger", "Ibex", "Red Deer", "Chamois", "Cat",
-    "Goat", "Roe Deer", "Dog", "Squirrel", "Equid", "Genet",
-    "Hedgehog", "Lagomorph", "Wolf", "Lynx", "Marmot",
-    "Micromammal", "Mouflon", "Sheep", "Mustelid", "Bird",
-    "Bear", "Nutria", "Fox", "Wild Boar", "Cow"
-]
-ROMANIAN_CLASSES = [
-    "Bursuc", "Ibex", "Cerb", "Capră Neagră", "Pisică", 
-    "Capră", "Căprioară", "Câine", "Veveriță", "Cal", "Genetă",
-    "Arici", "Iepuri", "Lup", "Râs", "Marmotă", 
-    "Micromamifer", "Muflon", "Oaie", "Mustelid", "Pasăre", 
-    "Urs", "Nutrie", "Vulpe", "Mistreț", "Vacă"
+    "Bison", "Badger", "Ibex", "Beaver", "Red Deer", "Chamois", "Cat",
+    "Goat", "Roe Deer", "Dog", "Fallow Deer", "Squirrel", "Moose",
+    "Equid", "Genet", "Wolverine", "Hedgehog", "Lagomorph", "Wolf",
+    "Otter", "Lynx", "Marmot", "Micromammal", "Mouflon", "Sheep",
+    "Mustelid", "Bird", "Bear", "Nutria", "Raccoon", "Fox",
+    "Reindeer", "Wild Boar", "Cow"
 ]
 
-# Initialise the Detection and Classifier Models
-device = set_device()
-detector_model = run_detector.load_detector(DETECTOR_MODEL_PATH)
-print("Loading classifier...")
+ROMANIAN_CLASSES = [
+    "Bizon", "Bursuc", "Ibex", "Castor", "Cerb", "Capră Neagră", "Pisică",
+    "Capră", "Căprioară", "Câine", "Cerb Lopătar", "Veveriță", "Elan",
+    "Cal", "Genetă", "Jder Mare", "Arici", "Iepure", "Lup",
+    "Vidră", "Râs", "Marmotă", "Micromamifer", "Muflon", "Oaie",
+    "Mustelid", "Pasăre", "Urs", "Nutrie", "Raton", "Vulpe",
+    "Ren", "Mistreț", "Vacă"
+]
+
+print(f"\nLoading classifier...")
 start_time = time.time()
 classifier_model = classifier(CLASSIFIER_MODEL_PATH, BACKBONE, CLASSIFIER_CLASSES, device)
 end_time = time.time()
-print(f"Loaded classifier in {(end_time - start_time):.2f} seconds")
+print(f"Loaded classifier in {(end_time - start_time):.2f} seconds. Device: {device}")
+
 
 #################################################
 ###### INITIALISE SETTINGS AND FILE PATHS #######
@@ -97,10 +116,9 @@ config = load_config(CONFIG_PATH)
 
 # Extract the variables from the returned dictionary
 DETECTION_THRESHOLD = config['DETECTION_THRESHOLD']
+DETECTOR_MODEL_V6 = config['DETECTOR_MODEL_V6']
 CLASSIFICATION_THRESHOLD = config['CLASSIFICATION_THRESHOLD']
 ALERT_LANGUAGE = config['ALERT_LANGUAGE']
-HUMAN_ALERT_START = config['HUMAN_ALERT_START']
-HUMAN_ALERT_END = config['HUMAN_ALERT_END']
 PRIORITY_SPECIES = config['PRIORITY_SPECIES']
 CHECK_EMAIL_FREQUENCY = config['CHECK_EMAIL_FREQUENCY']
 IMAP_HOST = config['IMAP_HOST']
@@ -121,6 +139,7 @@ last_config_mod_time = config['last_config_mod_time']
 schedule.every().monday.at("08:00").do(
     functools.partial(send_weekly_report, SMTP_SERVER, EMAIL_SENDER, EMAIL_PASSWORD, SMTP_PORT, CAPTURE_DATABASE_PATH, CAMERA_LOCATIONS_PATH, RECIPIENTS, EMAIL_USER)
 )
+
 
 ################################################
 ########### START ALERT SYSTEM LOOP ############

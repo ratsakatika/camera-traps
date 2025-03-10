@@ -5,15 +5,19 @@
 
 This software was developed in partnership with <a href="https://www.carpathia.org/" target="_blank">Fundația Conservation Carpathia</a>, a nature conservation and restoration organisation based in Romania. <b>Read the [licenses](#-license) and [disclaimer](#-disclaimer) before use.</b>
 
-The research report detailing the software's development can be [found here](https://github.com/ratsakatika/camera-traps/blob/main/report/T.%20Ratsakatika%20-%20Real-Time%20Wildlife%20Monitoring.pdf).
+## 🔔 Updates
+
+***March 2025: Now uses DeepFaune v1.3 (new animals: beaver, bison, fallow deer, moose, otter, racoon, reindeer and wolverine). More details can be [found here](https://plmlab.math.cnrs.fr/deepfaune/software/).***
+
+***March 2025: Option to use MegaDetector v6, however initial tests indicate that the larger MegaDetector v5 model gives better results for this use case where processing time is not a constraint. More details can be [found here](https://github.com/microsoft/CameraTraps).***
 
 ## 💡 Overview
 
-This repository contains code to run a wildlife alert system on your laptop, PC or server. You can even run the basic version on a [Raspberry Pi 4B](https://www.raspberrypi.com/products/raspberry-pi-4-model-b/) (requires 4GB RAM minimum).
+This repository contains code to run a wildlife alert system on your laptop, PC or server. You can even run a [basic version](scripts/basic_alert_system.py) on a [Raspberry Pi 4B](https://www.raspberrypi.com/products/raspberry-pi-4-model-b/) (requires 4GB RAM minimum).
 
 The system will process photos sent from a 4G-enabled camera trap and send alerts directly to your mobile phone.
 
-The system uses a classification [model](#-models) that can identify **26 European mammals**, however, it can be adapted to use other models.
+The system uses a classification [model](#-models) that can identify **34 European mammals**, however, it can be adapted to use other models.
 
 To get started, you will need at least one 4G-enabled camera trap, a dedicated email address, a Telegram account and some basic Python skills.
 
@@ -43,11 +47,11 @@ Get started by following the steps below. If anything doesn't make sense, follow
 1. Clone the repository.
 2. Download the [detection and classification models](#-models) and move them to the [models](models) directory.
 3. Create the camera traps virtual environment with conda (environment.yml) or pip (requirement.txt -  Python <3.12, >=3.9 ONLY).
-4. Create a dedicated email account to receive the 4G camera trap photos and generate an app password. Your email provider **must** support app passwords (e.g. <a href="https://myaccount.google.com/apppasswords" target="_blank">Gmail</a>).
+4. Create a dedicated email account to receive the 4G camera trap photos and generate an app password. Your email provider **must** support app passwords (e.g. <a href="https://myaccount.google.com/apppasswords" target="_blank">Gmail - requires two-factor authentication set up</a>).
 5. Set up your 4G camera trap to send photos to this dedicated email address.
 6. Create a bot in Telegram using @BotFather and note down the bot token (<a href="https://core.telegram.org/bots/tutorial" target="_blank">detailed instructions here</a>).
 7. Create a group in Telegram, add the bot to the group and make it an admin. Then note down the group's <a href="https://www.wikihow.com/Know-Chat-ID-on-Telegram-on-Android" target="_blank">chat ID</a> (do this AFTER adding the bot - the chat ID should start with '#-100')
-8. Update the config.yaml file with your email account settings, and Telegram chat ID and bot token.
+8. Update the config.yaml.example file with your email account settings, and Telegram chat ID and bot token. Save this file as config.yaml.
 9. Update the [camera locations](data/camera_locations.csv) CSV file with your camera(s) details, location and a google maps link.
 10. Verify that the settings in the the [alert system script](scripts/advanced_alert_system.py) meet your requirements.
 11. Activate the virtual environment and run the alert system script: `python3 scripts/advanced_alert_system.py`
@@ -73,18 +77,19 @@ VS Code also provides tools to "clone" (copy) a repository. You can alternativel
 
 Now you will need to create a ["virtual environment"](https://docs.python.org/3/library/venv.html) and install all the modules needed to run the alert system. Open a new terminal (within VS Code or your operating system), navigate to the camera-traps folder (`cd camera-traps`), and create a virtual environment with the required modules using pip (recommended for Linux/macOS) or conda (<a href="https://docs.anaconda.com/miniconda/#" target="_blank">download here</a>):
 
-  - Using conda (Windows/Linux/macOS):
-    ```bash
-    conda env create -f environment.yml
-    conda activate camera_traps
-    ```
-
-  - Using pip (Python <3.12, >=3.9, Linux/macOS ONLY):
+  - Using pip (Recommended):
     ```bash
     python3 -m venv camera_traps
     source camera_traps/bin/activate
     pip install -r requirements.txt
     ```
+
+  - Using conda (Untested):
+    ```bash
+    conda env create -f environment.yml
+    conda activate camera_traps
+    ```
+
  You can now open and run the [Example Tutorial Notebook](notebooks/alert_system_tutorial.ipynb).
 
 ## 🤖 Models
@@ -93,18 +98,15 @@ Now you will need to create a ["virtual environment"](https://docs.python.org/3/
 
 The **advanced version** of the alert system uses the <a href="https://github.com/agentmorris/MegaDetector?tab=readme-ov-file" target="_blank">MegaDetector</a> object detection model and <a href="https://www.deepfaune.cnrs.fr/en/" target="_blank">DeepFaune</a> species classification model:
 
-- MegaDetector Detection Model: <a href="https://github.com/agentmorris/MegaDetector/releases/tag/v5.0" target="_blank">md_v5a.0.0.pt</a>
-- DeepFaune Classifier Model: <a href="https://pbil.univ-lyon1.fr/software/download/deepfaune/v1.1/" target="_blank">deepfaune-vit_large_patch14_dinov2.lvd142m.pt</a>
+- MegaDetector Detection Model v5a: <a href="https://github.com/agentmorris/MegaDetector/releases/tag/v5.0" target="_blank">md_v5a.0.0.pt</a>
+- DeepFaune Classifier Model v1.3: <a href="https://pbil.univ-lyon1.fr/software/download/deepfaune/v1.3/" target="_blank">deepfaune-vit_large_patch14_dinov2.lvd142m.v3.pt</a>
+
+If you would like to use MegaDetector v6, the weights for the "_MDV6-yolov10-x_" model can be [downloaded here](https://zenodo.org/records/14567879/files/MDV6-yolov10x.pt?download=1).
 
 The **basic version** uses DeepFaune's object detection and species classification models:
 
 - DeepFaune Detection Model: <a href="https://pbil.univ-lyon1.fr/software/download/deepfaune/v1.1/" target="_blank">deepfaune-yolov8s_960.pt</a>
-- DeepFaune Classifier Model: <a href="https://pbil.univ-lyon1.fr/software/download/deepfaune/v1.1/" target="_blank">deepfaune-vit_large_patch14_dinov2.lvd142m.pt</a>
-
-If you are using the alert system in the Carpathian Mountains or would like to bias classification performance towards wild boar and bears, you may also wish to try the fine-tuned DeepFaune classification model, which works alongside MegaDetector. Further details can be found in the accompanying research report [COMING SOON].
-
-- Carpathian Mountain Model: [fine-tuned-deepfaune-balanced-loss.pt](https://drive.google.com/file/d/1Y0P7Z4DX1s7Sj3v7LjbeZNkMC4wByKPi/view?usp=sharing)
-- Carpathian Mountain Model (biased to bears and wild boars): [fine-tuned-deepfaune-biased-loss.pt](https://drive.google.com/file/d/1Co5UuHwNKCPfCW3KTZ9M_42HzvS4IpzV/view?usp=sharing)
+- DeepFaune Classifier Model v1.0: <a href="https://pbil.univ-lyon1.fr/software/download/deepfaune/v1.1/" target="_blank">deepfaune-vit_large_patch14_dinov2.lvd142m.pt</a>
 
 Advanced users can also adapt the code to integrate their own classification models to identify different species. See [Dan Morris' Camera Trap Survey](https://github.com/agentmorris/camera-trap-ml-survey?tab=readme-ov-file#publicly-available-ml-models-for-camera-traps) for potential alternatives.
 
@@ -126,7 +128,7 @@ You could also investigate <a href="https://lila.science/" target="_blank">LILA 
 ├── models              # Directory for storing the AI models
 ├── notebooks           # Directory for the example tutorial notebook
 ├── scripts             # Directory for alert system scripts
-├── analysis_env.yml    # A complex Conda environment for the archive notebooks
+├── config.yaml         # Alert system configuration file (rename config.yaml.example)
 ├── environment.yml     # Conda environment configuration file
 ├── requirements.txt    # Pip environment configuration file (recommended)
 ├── LICENSE             # License file for the repository
@@ -146,7 +148,7 @@ For questions or more information, please contact [Tom Ratsakatika](mailto:trr26
 @misc{ratsakatika2024ai,
   author       = {Thomas Ratsakatika},
   title        = {AI for Wildlife Monitoring},
-  year         = 2024,
+  year         = 2025,
   month        = jun,
   institution  = {University of Cambridge},
   howpublished = {\url{https://github.com/ratsakatika/camera-traps}}
@@ -154,54 +156,19 @@ For questions or more information, please contact [Tom Ratsakatika](mailto:trr26
 ```
 ### DeepFaune Detection and Classification Models
 
-```
-{% raw %}
-@misc{rigoudy_deepfaune_2024,
-  author       = {Noa Rigoudy and Gaspard Dussert and Abdelbaki Benyoub and Aurélien Besnard and Carole Birck},
-  title        = {{DeepFaune} / {DeepFaune} {Software} · {GitLab}},
-  year         = 2024,
-  month        = feb,
-  abstract     = {PLMlab - La forge by Mathrice},
-  language     = {en},
-  howpublished = {\url{https://plmlab.math.cnrs.fr/deepfaune/software}},
-  urldate      = {2024-04-08},
-  journal      = {GitLab}
-}
-{% endraw %}
-```
+See: https://www.deepfaune.cnrs.fr/en/ 
 
 ### MegaDetector Detection Model
 
-```
-@misc{Beery_Efficient_Pipeline_for,
-	title = {Efficient pipeline for camera trap image review},
-	copyright = {MIT},
-	url = {http://github.com/agentmorris/MegaDetector},
-	author = {Beery, Sara and Morris, Dan and Yang, Siyu},
-}
-```
-
-```
-@misc{hernandez2024pytorchwildlife,
-  author       = {Andres Hernandez and Zhongqi Miao and Luisa Vargas and Rahul Dodhia and Juan Lavista},
-  title        = {Pytorch-Wildlife: A Collaborative Deep Learning Framework for Conservation},
-  year         = 2024,
-  howpublished = {\url{https://github.com/microsoft/CameraTraps/blob/main/megadetector.md}},
-  eprint       = {2405.12930},
-  archivePrefix= {arXiv},
-  primaryClass = {cs.CV}
-}
-```
+See: https://github.com/microsoft/CameraTraps
 
 ## 📜 License
 
 The alert system code is released under the MIT license. Further details can be [found here](LICENSE).
 
-The Carpathian Mountain models are released under the Creative Commons non-Commercial CC BY-NC-SA 4.0 License. Further details can be <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">found here</a>.
-
 The DeepFaune models' license can be <a href="https://plmlab.math.cnrs.fr/deepfaune/software/-/tree/master" target="_blank">found here</a>. Commercial use of the DeepFaune models is forbidden.
 
-The MegaDetector model's license can be <a href="https://github.com/agentmorris/MegaDetector?tab=readme-ov-file" target="_blank">found here</a>.
+The MegaDetector model's license can be <a href="https://github.com/microsoft/CameraTraps" target="_blank">found here</a>.
 
 ## ❗ Disclaimer
 
@@ -209,7 +176,7 @@ The MegaDetector model's license can be <a href="https://github.com/agentmorris/
 
 ## 🙏 Acknowledgements
 
-I would like to extend my sincere thanks to <a href="https://www.cst.cam.ac.uk/people/sk818" target="_blank">Professor Srinivasan Keshav</a> and <a href="https://www.researchgate.net/profile/Ruben-Iosif" target="_blank">Dr Ruben Iosif</a> for their invaluable insights and expertise while developing this software. I would also like to thank Fundația Conservation Carpathia's Wildlife and Rapid Intervention Team, who hosted me in Romania, deployed the camera traps, and provided valuable feedback during the system's development.
+I would like to thank <a href="https://www.cst.cam.ac.uk/people/sk818" target="_blank">Professor Srinivasan Keshav</a> and <a href="https://www.researchgate.net/profile/Ruben-Iosif" target="_blank">Dr Ruben Iosif</a> for their invaluable insights and expertise while developing this software. I would also like to thank Fundația Conservation Carpathia's Wildlife and Rapid Intervention Team, who hosted me in Romania, deployed the camera traps, and provided valuable feedback during the system's development.
 
 This software was built as part of the UKRI-funded [Artificial Intelligence for Environmental Risk](https://ai4er-cdt.esc.cam.ac.uk/) Centre for Doctoral Training programme at the University of Cambridge.
 

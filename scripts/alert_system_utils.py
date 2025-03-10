@@ -7,12 +7,12 @@ import timm
 from datetime import datetime
 from torchvision import transforms
 from torchvision.transforms import InterpolationMode
-from megadetector.visualization import visualization_utils as vis_utils
 import io
 from PIL import Image
 import ast
 from IPython.display import display
-from megadetector.visualization import visualization_utils as vis_utils
+
+
 from collections import Counter
 
 def set_device():
@@ -44,7 +44,8 @@ from PytorchWildlife.models import detection as pw_detection
 from PytorchWildlife import utils as pw_utils
 import torch
 import os
-import tempfile
+# import tempfile
+import numpy as np
 
 
 def detector(df, model, images, DETECTION_THRESHOLD):
@@ -71,23 +72,12 @@ def detector(df, model, images, DETECTION_THRESHOLD):
     # Ensure there are enough rows in the DataFrame to update
     if len(df) < num_images:
         raise ValueError(f"{current_time()} | Critical Error: The DataFrame does not have enough rows to update.")
-
+    
     for i, image in enumerate(images):
 
-        # Save the image temporarily to a file
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
-            temp_file_path = temp_file.name
-            image.save(temp_file_path)  # Save image to temporary file
+        processed_image = np.array(image)
+        result = model.single_image_detection(processed_image)
 
-        # Now pass the file path to the model
-        result = model.single_image_detection(temp_file_path)
-
-        print(result)
-
-        # Delete the temporary file after processing
-        os.remove(temp_file_path)
-
-        # Access the detections in the result
         detections_above_threshold = []
         for idx, conf in enumerate(result['detections'].confidence):
             if conf > DETECTION_THRESHOLD:
@@ -97,25 +87,15 @@ def detector(df, model, images, DETECTION_THRESHOLD):
                     'conf': conf  # Confidence
                 })
 
-        detection_boxes = [d['bbox'] for d in detections_above_threshold]
-        detection_classes = [d['category'] for d in detections_above_threshold]
-        detection_confidences = [d['conf'] for d in detections_above_threshold]
+        detection_boxes = [d['bbox'].tolist() for d in detections_above_threshold]
+        detection_classes = [int(d['category']) for d in detections_above_threshold] # +1 to convert back to original class IDs
+        detection_confidences = [float(d['conf']) for d in detections_above_threshold]
 
-        animal_count = sum(1 for d in detections_above_threshold if d['category'] == '1')
-        human_count = sum(1 for d in detections_above_threshold if d['category'] == '2')
-        vehicle_count = sum(1 for d in detections_above_threshold if d['category'] == '3')
+        animal_count = sum(1 for d in detections_above_threshold if d['category'] == 0)
+        human_count = sum(1 for d in detections_above_threshold if d['category'] == 1)
+        vehicle_count = sum(1 for d in detections_above_threshold if d['category'] == 2)
 
         print(f"{current_time()} | Image {i+1}: Animal Count = {animal_count}, Human Count = {human_count}, Vehicle Count = {vehicle_count}")
-
-
-        # Draw the bounding boxes on the image (for debugging)
-        draw = ImageDraw.Draw(image)
-        for bbox in detection_boxes:
-            x1, y1, x2, y2 = bbox
-            draw.rectangle([x1, y1, x2, y2], outline="red", width=3)
-        
-        # Display the image with detection boxes in the notebook
-        display(image)
 
         # Update the respective row in the DataFrame
         df.at[df.index[-num_images + i], 'Detection Boxes'] = detection_boxes
@@ -198,7 +178,7 @@ class classifier:
             return self.animal_classes[top_class.item()], top_p.item()
 
 
-def batch_classification(df, classifier_model, images, CLASSIFICATION_THRESHOLD, PRIORITY_SPECIES):
+def batch_classification(df, classifier_model, images, CLASSIFICATION_THRESHOLD=0.3, PRIORITY_SPECIES=[""]):
     """
     Performs batch classification on a list of images and update the dataframe with species information.
 
@@ -233,23 +213,11 @@ def batch_classification(df, classifier_model, images, CLASSIFICATION_THRESHOLD,
 
             for j, bbox in enumerate(detection_boxes):
                 
-                if detection_classes[j] == '1':  # Only classify if an animal
+                if detection_classes[j] == 0:  # Only classify if an animal
 
-                    left, top, width, height = bbox  # Unpack the bounding box
+                    left, top, right, bottom = bbox  # Unpack the bounding box
 
-                    # Calculate the cropping coordinates
-                    left_resized = int(left * image.width)
-                    top_resized = int(top * image.height)
-                    right_resized = int((left + width) * image.width)
-                    bottom_resized = int((top + height) * image.height)
-
-                    # Ensure the coordinates are within the image boundaries
-                    left_resized = max(0, min(left_resized, image.width))
-                    top_resized = max(0, min(top_resized, image.height))
-                    right_resized = max(0, min(right_resized, image.width))
-                    bottom_resized = max(0, min(bottom_resized, image.height))
-
-                    cropped_image = image.crop((left_resized, top_resized, right_resized, bottom_resized))
+                    cropped_image = image.crop((left, top, right, bottom))
 
                     species, species_conf = classifier_model.predict(cropped_image)
 
@@ -1147,8 +1115,6 @@ def generate_alert_caption_en(df, human_warning, num_images, priority_detections
     Parameters:
         - df (dataframe): The dataframe containing detection data.
         - human_warning (bool): Flag indicating if humans or vehicles were detected.
-        - HUMAN_ALERT_START (str): The start time for human alerts.
-        - HUMAN_ALERT_END (str): The end time for human alerts.
         - num_images (int): The number of images in the sequence.
         - PRIORITY_SPECIES (list): List of species that trigger priority alerts.
         - ALERT_LANGUAGE (str): The language for the alert ('en' or 'ro').
@@ -1295,8 +1261,6 @@ def generate_alert_caption_ro(df, human_warning, num_images, priority_detections
     Parameters:
         - df (dataframe): The dataframe containing detection data.
         - human_warning (bool): Flag indicating if humans or vehicles were detected.
-        - HUMAN_ALERT_START (str): The start time for human alerts.
-        - HUMAN_ALERT_END (str): The end time for human alerts.
         - num_images (int): The number of images in the sequence.
         - PRIORITY_SPECIES (list): List of species that trigger priority alerts.
         - ALERT_LANGUAGE (str): The language for the alert ('en' or 'ro').
@@ -1548,14 +1512,11 @@ def annotate_images_en(df, images, CLASSIFICATION_THRESHOLD):
         font = ImageFont.truetype("../Ubuntu-B.ttf", font_size)
 
         for box, d_class, d_conf in zip(detection_boxes, detection_classes, detection_confidences):
-            # Convert relative coordinates to absolute coordinates
-            x1 = int(box[0] * width)
-            y1 = int(box[1] * height)
-            x2 = int((box[0] + box[2]) * width)
-            y2 = int((box[1] + box[3]) * height)
-            
+
+            x1, y1, x2, y2 = map(int, box)  # Convert directly to integers
+
             # Set color and label based on detection class
-            if d_class == '1':  # Animal
+            if d_class == 0:  # Animal
 
                 species_label = species_classes[species_idx]
                 species_confidence = species_confidences[species_idx]
@@ -1569,11 +1530,11 @@ def annotate_images_en(df, images, CLASSIFICATION_THRESHOLD):
                 label = f"Animal {d_conf * 100:.0f}% | {species_label} {species_confidences[species_idx] * 100:.0f}%"
                 species_idx += 1
 
-            elif d_class == '2':  # Human
+            elif d_class == 1:  # Human
                 color = 'green'
                 label = f"Human {d_conf * 100:.0f}%"
 
-            elif d_class == '3':  # Vehicle
+            elif d_class == 2:  # Vehicle
                 color = 'blue'
                 label = f"Vehicle {d_conf * 100:.0f}%"
                     
@@ -1693,14 +1654,11 @@ def annotate_images_ro(df, images, CLASSIFICATION_THRESHOLD, CLASSIFIER_CLASSES,
         font = ImageFont.truetype("../Ubuntu-B.ttf", font_size)
 
         for box, d_class, d_conf in zip(detection_boxes, detection_classes, detection_confidences):
-            # Convert relative coordinates to absolute coordinates
-            x1 = int(box[0] * width)
-            y1 = int(box[1] * height)
-            x2 = int((box[0] + box[2]) * width)
-            y2 = int((box[1] + box[3]) * height)
+
+            x1, y1, x2, y2 = map(int, box)  # Convert directly to integers
             
             # Set color and label based on detection class
-            if d_class == '1':  # Animal
+            if d_class == 0:  # Animal
 
                 species_label = species_classes[species_idx]
                 species_confidence = species_confidences[species_idx]
@@ -1718,11 +1676,11 @@ def annotate_images_ro(df, images, CLASSIFICATION_THRESHOLD, CLASSIFIER_CLASSES,
                 label = f"Animal {d_conf * 100:.0f}% | {species_label_romanian} {species_confidences[species_idx] * 100:.0f}%"
                 species_idx += 1
 
-            elif d_class == '2':  # Human
+            elif d_class == 1:  # Human
                 color = 'green'
                 label = f"Persoană {d_conf * 100:.0f}%"
 
-            elif d_class == '3':  # Vehicle
+            elif d_class == 2:  # Vehicle
                 color = 'blue'
                 label = f"Vehicul {d_conf * 100:.0f}%"
                     
@@ -1944,10 +1902,9 @@ def load_config(CONFIG_PATH):
 
         # Extract system settings from the config file
         detection_threshold = float(config['system_config']['DETECTION_THRESHOLD'])
+        detector_model_v6 = bool(config['system_config']['DETECTOR_MODEL_V6'])
         classification_threshold = float(config['system_config']['CLASSIFICATION_THRESHOLD'])
         alert_language = str(config['system_config']['LANGUAGE'].lower())  # Convert to lowercase
-        human_alert_start = str(config['system_config']['HUMAN_ALERT_START'])
-        human_alert_end = str(config['system_config']['HUMAN_ALERT_END'])
         priority_species = config['system_config']['PRIORITY_SPECIES']
         check_email_frequency = int(config['system_config']['CHECK_EMAIL_FREQUENCY'])
 
@@ -1975,16 +1932,14 @@ def load_config(CONFIG_PATH):
         print(f"{current_time()} | Current Settings:  "
             f"DETECTION_THRESHOLD={detection_threshold}, CLASSIFICATION_THRESHOLD={classification_threshold}, "
             f"ALERT_LANGUAGE={alert_language}, CHECK_EMAIL_FREQUENCY={check_email_frequency} seconds, "
-            f"HUMAN_ALERT_START={human_alert_start}. HUMAN_ALERT_END={human_alert_end}, "
             f"PRIORITY_SPECIES={priority_species}")
 
         # Return all settings as a dictionary or tuple
         return {
             'DETECTION_THRESHOLD': detection_threshold,
+            'DETECTOR_MODEL_V6': detector_model_v6,
             'CLASSIFICATION_THRESHOLD': classification_threshold,
             'ALERT_LANGUAGE': alert_language,
-            'HUMAN_ALERT_START': human_alert_start,
-            'HUMAN_ALERT_END': human_alert_end,
             'PRIORITY_SPECIES': priority_species,
             'CHECK_EMAIL_FREQUENCY': check_email_frequency,
             'IMAP_HOST': imap_host,

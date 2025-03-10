@@ -1,0 +1,34 @@
+imap_config:
+  host: 'YOUR_IMAP_SERVER_NAME'
+  user: 'YOUR_DEDICATED_EMAIL_ADDRESS'
+  password: 'YOUR_APP_PASSWORD'
+
+telegram_config:
+  bot_token: 'YOUR_BOT_TOKEN'
+  chat_id: 'YOUR_CHAT_ID'
+
+smtp_config:
+  host: 'YOUR_SMTP_SERVER_NAME'
+  port: 'YOUR_SMTP_SERVER_PORT'
+  user: 'YOUR_DEDICATED_EMAIL_ADDRESS'
+  password: 'YOUR_APP_PASSWORD'
+  recipients:
+    - 'RECIPIENT_EMAIL_ADDRESS_1'
+    - 'RECIPIENT_EMAIL_ADDRESS_2'
+
+telegram_config:
+  bot_token: 'YOUR_BOT_TOKEN'
+  chat_id_all: 'YOUR_CHAT_ID'
+  chat_id_priority: 'YOUR_CHAT_ID'
+  chat_id_human: 'YOUR_CHAT_ID'
+
+system_config:
+  LANGUAGE: 'en' # Enter EN for English and RO for Romanian
+  CHECK_EMAIL_FREQUENCY: 60 # How often the system checks emails in seconds (default = 60)
+  DETECTION_THRESHOLD: 0.20
+  DETECTOR_MODEL_V6: False # True = MegaDetector v6, False = MegaDetector v5
+  CLASSIFICATION_THRESHOLD: 0.60
+  PRIORITY_SPECIES:
+    - 'Wolf'
+    - 'Bear'
+    - 'Wild Boar'

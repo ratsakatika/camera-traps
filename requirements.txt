@@ -1,4 +1,4 @@
-megadetector
+PytorchWildlife
 ipykernel
 ipywidgets
 schedule
