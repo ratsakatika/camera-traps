@@ -1,15 +1,13 @@
 # Folders
 archive/more_files
-data/
+data/dev_data
 scrips/__pycache__
 models/
 
 # Files
 .vscode
-config.yaml
 
 # Virtual environment folders
-
-venv_camera_traps/
 .venv
+venv_camera_traps/
 camera_traps
