@@ -9,7 +9,7 @@ This software was developed in partnership with <a href="https://www.carpathia.o
 
 ***March 2025: Now uses DeepFaune v1.3 (new animals: beaver, bison, fallow deer, moose, otter, racoon, reindeer and wolverine). More details can be [found here](https://plmlab.math.cnrs.fr/deepfaune/software/).***
 
-***March 2025: Option to use MegaDetector v6, however initial tests indicate that the larger MegaDetector v5 model gives better results for this use case where processing time is not a constraint. More details can be [found here](https://github.com/microsoft/CameraTraps).***
+***March 2025: Option to use MegaDetector v6 or v5; however, initial tests indicate that the larger MegaDetector v5 model gives better results for this use case (processing time is not a constraint). More details can be [found here](https://github.com/microsoft/CameraTraps).***
 
 ## 💡 Overview
 
