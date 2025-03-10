@@ -94,7 +94,7 @@ Now you will need to create a ["virtual environment"](https://docs.python.org/3/
 
 ## 🤖 Models
 
-**Important:** Users must agree to the respective license terms of third-party models. Once downloaded, these models should be moved to the [models](models) directory.
+**Important:** Users must agree to the respective license terms of third-party models. Once downloaded, these models should be moved to the [models](models) directory. Alternatively, use the _bash_ commands provided below in the camera-traps directory.
 
 The **advanced version** of the alert system uses the <a href="https://github.com/agentmorris/MegaDetector?tab=readme-ov-file" target="_blank">MegaDetector</a> object detection model and <a href="https://www.deepfaune.cnrs.fr/en/" target="_blank">DeepFaune</a> species classification model:
 
@@ -108,6 +108,11 @@ wget -nc -O models/deepfaune-vit_large_patch14_dinov2.lvd142m.v3.pt https://pbil
 ```
 
 If you would like to use MegaDetector v6, the weights for the "_MDV6-yolov10-x_" model can be [downloaded here](https://zenodo.org/records/14567879/files/MDV6-yolov10x.pt?download=1).
+
+```bash
+mkdir -p models
+wget -nc -O models/MDV6-yolov10x.pt https://zenodo.org/records/14567879/files/MDV6-yolov10x.pt?download=1
+```
 
 The **basic version** uses DeepFaune's object detection and species classification models:
 
