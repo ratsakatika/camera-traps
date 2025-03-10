@@ -101,12 +101,24 @@ The **advanced version** of the alert system uses the <a href="https://github.co
 - MegaDetector Detection Model v5a: <a href="https://github.com/agentmorris/MegaDetector/releases/tag/v5.0" target="_blank">md_v5a.0.0.pt</a>
 - DeepFaune Classifier Model v1.3: <a href="https://pbil.univ-lyon1.fr/software/download/deepfaune/v1.3/" target="_blank">deepfaune-vit_large_patch14_dinov2.lvd142m.v3.pt</a>
 
+```bash
+mkdir -p models
+wget -nc -O models/md_v5a.0.0.pt https://github.com/agentmorris/MegaDetector/releases/download/v5.0/md_v5a.0.0.pt
+wget -nc -O models/deepfaune-vit_large_patch14_dinov2.lvd142m.v3.pt https://pbil.univ-lyon1.fr/software/download/deepfaune/v1.3/deepfaune-vit_large_patch14_dinov2.lvd142m.v3.pt
+```
+
 If you would like to use MegaDetector v6, the weights for the "_MDV6-yolov10-x_" model can be [downloaded here](https://zenodo.org/records/14567879/files/MDV6-yolov10x.pt?download=1).
 
 The **basic version** uses DeepFaune's object detection and species classification models:
 
 - DeepFaune Detection Model: <a href="https://pbil.univ-lyon1.fr/software/download/deepfaune/v1.1/" target="_blank">deepfaune-yolov8s_960.pt</a>
 - DeepFaune Classifier Model v1.0: <a href="https://pbil.univ-lyon1.fr/software/download/deepfaune/v1.1/" target="_blank">deepfaune-vit_large_patch14_dinov2.lvd142m.pt</a>
+
+```bash
+mkdir -p models
+wget -nc -O models/deepfaune-yolov8s_960.pt https://pbil.univ-lyon1.fr/software/download/deepfaune/v1.1/deepfaune-yolov8s_960.pt
+wget -nc -O models/deepfaune-vit_large_patch14_dinov2.lvd142m.pt https://pbil.univ-lyon1.fr/software/download/deepfaune/v1.1/deepfaune-vit_large_patch14_dinov2.lvd142m.pt
+```
 
 Advanced users can also adapt the code to integrate their own classification models to identify different species. See [Dan Morris' Camera Trap Survey](https://github.com/agentmorris/camera-trap-ml-survey?tab=readme-ov-file#publicly-available-ml-models-for-camera-traps) for potential alternatives.
 
