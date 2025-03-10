@@ -79,8 +79,8 @@ Now you will need to create a ["virtual environment"](https://docs.python.org/3/
 
   - Using pip (Recommended):
     ```bash
-    python3 -m venv camera_traps
-    source camera_traps/bin/activate
+    python3 -m venv .venv
+    source .venv/bin/activate
     pip install -r requirements.txt
     ```
 

@@ -15,6 +15,6 @@ config.yaml
 
 # Virtual environment folders
 .venv
-/venv_camera_traps/
 /camera_traps/
+
 
