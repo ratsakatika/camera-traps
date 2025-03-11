@@ -5,6 +5,8 @@
 
 This software was developed in partnership with <a href="https://www.carpathia.org/" target="_blank">Fundația Conservation Carpathia</a>, a nature conservation and restoration organisation based in Romania. <b>Read the [licenses](#-license) and [disclaimer](#-disclaimer) before use.</b>
 
+**[* Quick Start Instructions *](#-quick-start)**
+
 ## 🔔 Updates
 
 ***March 2025: Now uses DeepFaune v1.3 (new animals: beaver, bison, fallow deer, moose, otter, racoon, reindeer and wolverine). More details can be [found here](https://plmlab.math.cnrs.fr/deepfaune/software/).***
@@ -69,7 +71,7 @@ Now you will need to create a ["virtual environment"](https://docs.python.org/3/
     conda activate camera_traps
     ```
 
-If you are using Windows Subsystem for Linxu (WSL), you will also need to install TKinter:
+If you are using Windows Subsystem for Linux (recommended if using Windows), you will also need to install Tkinter:
 
 ```bash
 sudo apt update
@@ -99,7 +101,7 @@ Below are detailed instructions for setting up the alert system. If anything doe
 7. Create a group in Telegram, add the bot to the group and make it an admin. Then note down the group's <a href="https://www.wikihow.com/Know-Chat-ID-on-Telegram-on-Android" target="_blank">chat ID</a> (do this AFTER adding the bot - the chat ID should start with '#-100')
 8. Update the config.yaml.example file with your email account settings, and Telegram chat ID and bot token. Save this file as config.yaml.
 9. Update the [camera locations](data/camera_locations.csv) CSV file with your camera(s) details, location and a google maps link.
-10. Verify that the settings in the the [alert system script](scripts/advanced_alert_system.py) meet your requirements.
+10. Verify that the settings in the [advanced alert system script](scripts/advanced_alert_system.py) meet your requirements.
 11. Activate the virtual environment and run the alert system script: `python3 scripts/advanced_alert_system.py`
 
 The script will check the email account every 60 seconds for unread emails, download any photos, detect and classify animals, and send an alert to your Telegram Group. It will then update the [capture database](data/capture_database.csv) and save the original photos in the [photos folder](data/photos). A high-level process flow diagram can be found [here](assets/final_alert_system_flow_diagram.png).
