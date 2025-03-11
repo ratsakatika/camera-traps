@@ -40,9 +40,55 @@ If you don't have these - or you just want to test the system on your laptop - r
 
 <i>Beta warning: this alert system is still in development and may result in unexpected behaviour. Also note that third-party functionality (e.g. email 'app passwords') may change at any time, resulting in the system not working. As more testing is done, future updates will aim to make the system more robust.</i>
 
-### 🚀 Quick Start (Advanced Users)
+### 🚀 Quick Start
 
-Get started by following the steps below. If anything doesn't make sense, follow the more detailed [Example Tutorial](#-example-tutorial).
+The [Example Tutorial Notebook](notebooks/alert_system_tutorial.ipynb) is designed to give you an overview of how the alert system works, and experiment the detection and classification models on some example images.
+
+To run this notebook, you will need to be able to run <a href="https://www.python.org/downloads/" target="_blank">Python</a> in a <a href="https://docs.jupyter.org/en/latest/start/index.html#id1" target="_blank">Jupyter Notebook</a>. There are many tutorials on how to do this online. One option is to download <a href="https://code.visualstudio.com/" target="_blank">VS Code</a> and add the Python and Jupyter extensions.
+
+Once you are set up with Jupyter, you will need to copy the alert system code repository onto your computer. If you know how to use Git, the command is:
+
+   ```bash
+   git clone https://github.com/ratsakatika/camera-traps.git
+   ```
+
+VS Code also provides tools to "clone" (copy) a repository. You can alternatively download everything as a zip file by clicking on the green 'code' button at the top of this page.
+
+Now you will need to create a ["virtual environment"](https://docs.python.org/3/library/venv.html) and install all the packages needed to run the alert system. Open a new terminal (within VS Code or your operating system), navigate to the newly created camera-traps folder (`cd camera-traps`), and create a virtual environment with the required modules using pip (recommended) or conda (<a href="https://docs.anaconda.com/miniconda/#" target="_blank">download here</a>).
+
+  - Create a pip virtual environment (recommended):
+    ```bash
+    python3 -m venv .venv
+    source .venv/bin/activate
+    pip install -r requirements.txt
+    ```
+
+  - Create a conda virtual environment (untested):
+    ```bash
+    conda env create -f environment.yml
+    conda activate camera_traps
+    ```
+
+If you are using Windows Subsystem for Linxu (WSL), you will also need to install TKinter:
+
+```bash
+sudo apt update
+sudo apt install python3-tk
+```
+
+Finally, download the detection and classification models into the /models directory:
+
+```bash
+mkdir -p models
+wget -nc -O models/md_v5a.0.0.pt https://github.com/agentmorris/MegaDetector/releases/download/v5.0/md_v5a.0.0.pt
+wget -nc -O models/deepfaune-vit_large_patch14_dinov2.lvd142m.v3.pt https://pbil.univ-lyon1.fr/software/download/deepfaune/v1.3/deepfaune-vit_large_patch14_dinov2.lvd142m.v3.pt
+```
+
+You can now open and run the [Example Tutorial Notebook](notebooks/alert_system_tutorial.ipynb).
+
+### 🎓 Detailed Setup Instructions
+
+Below are detailed instructions for setting up the alert system. If anything doesn't make sense, follow the more detailed [Example Tutorial](#-example-tutorial).
 
 1. Clone the repository.
 2. Download the [detection and classification models](#-models) and move them to the [models](models) directory.
@@ -59,38 +105,6 @@ Get started by following the steps below. If anything doesn't make sense, follow
 The script will check the email account every 60 seconds for unread emails, download any photos, detect and classify animals, and send an alert to your Telegram Group. It will then update the [capture database](data/capture_database.csv) and save the original photos in the [photos folder](data/photos). A high-level process flow diagram can be found [here](assets/final_alert_system_flow_diagram.png).
 
 You can also find code for processing camera trap data, and testing and fine-tuning AI models in the [archive](archive) folder. These notebooks are experimental and while they contain comments, are no detailed tutorials. [Contact me](#-contact) if you have any queries.
-
-### 🎓 Example Tutorial
-
-To run the [Example Tutorial Notebook](notebooks/alert_system_tutorial.ipynb), you will need to be able to run <a href="https://www.python.org/downloads/" target="_blank">Python</a> in a <a href="https://docs.jupyter.org/en/latest/start/index.html#id1" target="_blank">Jupyter Notebook</a>.
-
-There are many tutorials on how to do this online. One option is to download <a href="https://code.visualstudio.com/" target="_blank">VS Code</a> and add the Python and Jupyter extensions.
-
-
-Once you are set up with Jupyter, you will need to copy the alert system code repository onto your computer. If you know how to use Git, the command is:
-
-   ```bash
-   git clone https://github.com/ratsakatika/camera-traps.git
-   ```
-
-VS Code also provides tools to "clone" (copy) a repository. You can alternatively download everything as a zip file by clicking on the green 'code' button at the top of this page.
-
-Now you will need to create a ["virtual environment"](https://docs.python.org/3/library/venv.html) and install all the modules needed to run the alert system. Open a new terminal (within VS Code or your operating system), navigate to the camera-traps folder (`cd camera-traps`), and create a virtual environment with the required modules using pip (recommended for Linux/macOS) or conda (<a href="https://docs.anaconda.com/miniconda/#" target="_blank">download here</a>):
-
-  - Using pip (Recommended):
-    ```bash
-    python3 -m venv .venv
-    source .venv/bin/activate
-    pip install -r requirements.txt
-    ```
-
-  - Using conda (Untested):
-    ```bash
-    conda env create -f environment.yml
-    conda activate camera_traps
-    ```
-
- You can now open and run the [Example Tutorial Notebook](notebooks/alert_system_tutorial.ipynb).
 
 ## 🤖 Models
 
