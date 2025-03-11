@@ -21,7 +21,7 @@ The system uses a classification [model](#-models) that can identify **34 Europe
 
 To get started, you will need at least one 4G-enabled camera trap, a dedicated email address, a Telegram account and some basic Python skills.
 
-If you don't have these - or you just want to test the system on your laptop - run the [Example Tutorial](#-example-tutorial).
+If you don't have these - or you just want to test the system on your laptop - run the [Example Tutorial](#-quick-start).
 
 <div style="text-align: center;">
   <img src="assets/example_detections.gif" alt="Annotated Photos"/>
@@ -42,7 +42,7 @@ If you don't have these - or you just want to test the system on your laptop - r
 
 ### 🚀 Quick Start
 
-The [Example Tutorial Notebook](notebooks/alert_system_tutorial.ipynb) is designed to give you an overview of how the alert system works, and experiment the detection and classification models on some example images.
+The [Example Tutorial Notebook](notebooks/alert_system_tutorial.ipynb) is designed to give you an overview of how the alert system works, and experiment with the detection and classification models on some example images.
 
 To run this notebook, you will need to be able to run <a href="https://www.python.org/downloads/" target="_blank">Python</a> in a <a href="https://docs.jupyter.org/en/latest/start/index.html#id1" target="_blank">Jupyter Notebook</a>. There are many tutorials on how to do this online. One option is to download <a href="https://code.visualstudio.com/" target="_blank">VS Code</a> and add the Python and Jupyter extensions.
 
@@ -54,7 +54,7 @@ Once you are set up with Jupyter, you will need to copy the alert system code re
 
 VS Code also provides tools to "clone" (copy) a repository. You can alternatively download everything as a zip file by clicking on the green 'code' button at the top of this page.
 
-Now you will need to create a ["virtual environment"](https://docs.python.org/3/library/venv.html) and install all the packages needed to run the alert system. Open a new terminal (within VS Code or your operating system), navigate to the newly created camera-traps folder (`cd camera-traps`), and create a virtual environment with the required modules using pip (recommended) or conda (<a href="https://docs.anaconda.com/miniconda/#" target="_blank">download here</a>).
+Now you will need to create a ["virtual environment"](https://docs.python.org/3/library/venv.html) and install all the packages required to run the alert system. Open a new terminal (within VS Code or your operating system), navigate to the newly created camera-traps folder (`cd camera-traps`), and create a virtual environment with the required modules using pip (recommended) or conda (<a href="https://docs.anaconda.com/miniconda/#" target="_blank">download here</a>).
 
   - Create a pip virtual environment (recommended):
     ```bash
