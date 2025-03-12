@@ -40,7 +40,7 @@ If you don't have these - or you just want to test the system on your laptop - r
 
 ## 🛠️ Setup
 
-<i>Beta warning: this alert system is still in development and may result in unexpected behaviour. Also note that third-party functionality (e.g. email 'app passwords') may change at any time, resulting in the system not working. As more testing is done, future updates will aim to make the system more robust.</i>
+<i>Beta warning: this alert system is still in development and may result in unexpected behaviour. Also note that third-party functionality (e.g. Gmail 'app passwords', the Telegram API) may change at any time, resulting in the system not working.</i>
 
 ### 🚀 Quick Start
 
