@@ -1338,8 +1338,6 @@ def generate_alert_caption_ro(df, human_warning, num_images, priority_detections
                 species_confidences_dict[species][0] = min(species_confidences_dict[species][0], confidence)  # Min confidence
                 species_confidences_dict[species][1] = max(species_confidences_dict[species][1], confidence)  # Max confidence
 
-    print(species_confidences_dict)
-
     # Helper function to pluralise Romanian animal names
     def pluralize_romanian(word, count):
         if count > 1:
