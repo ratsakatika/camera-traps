@@ -242,7 +242,6 @@ if __name__ == "__main__":
                 print(f"{current_time()} | Original Settings: "
                     f"DETECTION_THRESHOLD={DETECTION_THRESHOLD}, CLASSIFICATION_THRESHOLD={CLASSIFICATION_THRESHOLD}, "
                     f"ALERT_LANGUAGE={ALERT_LANGUAGE}, CHECK_EMAIL_FREQUENCY={CHECK_EMAIL_FREQUENCY} seconds, "
-                    f"HUMAN_ALERT_START={HUMAN_ALERT_START}. HUMAN_ALERT_END={HUMAN_ALERT_END}, "
                     f"PRIORITY_SPECIES={PRIORITY_SPECIES}")
                 load_config(CONFIG_PATH)
                 last_config_mod_time = current_config_mod_time
