@@ -46,7 +46,7 @@ If you don't have these - or you just want to test the system on your laptop - r
 
 The [Example Tutorial Notebook](notebooks/alert_system_tutorial.ipynb) is designed to give you an overview of how the alert system works, and experiment with the detection and classification models on some example images.
 
-To run this notebook, you will need to be able to run <a href="https://www.python.org/downloads/" target="_blank">Python</a> in a <a href="https://docs.jupyter.org/en/latest/start/index.html#id1" target="_blank">Jupyter Notebook</a>. There are many tutorials on how to do this online. One option is to download <a href="https://code.visualstudio.com/" target="_blank">VS Code</a> and add the Python and Jupyter extensions.
+To run the example tutorial, you will need to be able to run <a href="https://www.python.org/downloads/" target="_blank">Python</a> in a <a href="https://docs.jupyter.org/en/latest/start/index.html#id1" target="_blank">Jupyter Notebook</a>. There are many tutorials on how to do this online. One option is to download <a href="https://code.visualstudio.com/" target="_blank">VS Code</a> and add the Python and Jupyter extensions.
 
 Once you are set up with Jupyter, you will need to copy the alert system code repository onto your computer. If you know how to use Git, the command is:
 
