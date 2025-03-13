@@ -47,8 +47,7 @@ class ConfigEditor(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("System Configuration")
-        self.setGeometry(300, 300, 1200, 800)  # Increased default window size
-        self.showMaximized()  # Launch maximized
+        self.setGeometry(350, 100, 1200, 800)  # Increased default window size
         
         self.process = None  # Stores the subprocess running the system
         self.log_thread = None

@@ -1,6 +1,7 @@
 # Folders
 /archive/more_files/
-
+/build/
+/dist/
 /data/dev_data
 /data/photos/*
 
@@ -18,3 +19,4 @@ config.yaml
 /camera_traps/
 
 
+launch_gui.spec
